@@ -191,47 +191,68 @@ function TeamMembers() {
 
                 {error && <div className="error-message">{error}</div>}
 
-                <div className="members-grid">
-                    {members.map(member => (
-                        <div key={member._id} className="member-card">
-                            <div className="member-avatar">
-                                {getInitials(member.user.name)}
-                            </div>
-                            <div className="member-info">
-                                <h3>{member.user.name}</h3>
-                                <p className="member-email">{member.user.email}</p>
-                                <span className={`role-badge ${getRoleBadgeClass(member.role)}`}>
-                                    {member.role}
-                                </span>
-                                {member.joinedAt && (
-                                    <p className="member-joined">
-                                        Joined {new Date(member.joinedAt).toLocaleDateString()}
-                                    </p>
+                {members.length === 0 ? (
+                    <div className="empty-state">
+                        <h2>No Team Members Found</h2>
+                        <p>Your organization needs to be migrated to the new team system.</p>
+                        <p><strong>Run this in the browser console (F12):</strong></p>
+                        <pre style={{ background: '#2a2a2a', padding: '1rem', borderRadius: '8px', overflowX: 'auto', fontSize: '0.85rem' }}>
+                            {`fetch('${import.meta.env.VITE_API_URL}/organizations/migrate-members', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer ' + localStorage.getItem('token'),
+    'Content-Type': 'application/json'
+  }
+}).then(r => r.json()).then(data => {
+  console.log('✅', data);
+  window.location.reload();
+});`}
+                        </pre>
+                        <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>After running this,the page will refresh and show your team!</p>
+                    </div>
+                ) : (
+                    <div className="members-grid">
+                        {members.map(member => (
+                            <div key={member._id} className="member-card">
+                                <div className="member-avatar">
+                                    {getInitials(member.user.name)}
+                                </div>
+                                <div className="member-info">
+                                    <h3>{member.user.name}</h3>
+                                    <p className="member-email">{member.user.email}</p>
+                                    <span className={`role-badge ${getRoleBadgeClass(member.role)}`}>
+                                        {member.role}
+                                    </span>
+                                    {member.joinedAt && (
+                                        <p className="member-joined">
+                                            Joined {new Date(member.joinedAt).toLocaleDateString()}
+                                        </p>
+                                    )}
+                                </div>
+                                {canInvite && member.role !== 'owner' && member.user._id !== currentUser.id && (
+                                    <div className="member-actions">
+                                        {currentMember.role === 'owner' && (
+                                            <select
+                                                value={member.role}
+                                                onChange={(e) => handleChangeRole(member.user._id, e.target.value)}
+                                                className="role-select"
+                                            >
+                                                <option value="admin">Admin</option>
+                                                <option value="member">Member</option>
+                                            </select>
+                                        )}
+                                        <button
+                                            className="btn-danger-small"
+                                            onClick={() => handleRemoveMember(member.user._id)}
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
                                 )}
                             </div>
-                            {canInvite && member.role !== 'owner' && member.user._id !== currentUser.id && (
-                                <div className="member-actions">
-                                    {currentMember.role === 'owner' && (
-                                        <select
-                                            value={member.role}
-                                            onChange={(e) => handleChangeRole(member.user._id, e.target.value)}
-                                            className="role-select"
-                                        >
-                                            <option value="admin">Admin</option>
-                                            <option value="member">Member</option>
-                                        </select>
-                                    )}
-                                    <button
-                                        className="btn-danger-small"
-                                        onClick={() => handleRemoveMember(member.user._id)}
-                                    >
-                                        Remove
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
 
                 {showInviteModal && (
                     <div className="modal-overlay" onClick={() => setShowInviteModal(false)}>
