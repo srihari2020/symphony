@@ -5,13 +5,77 @@ import { getProjects, createProject, deleteProject, getIntegrations, getGitHubRe
 import { GridSkeleton } from '../components/LoadingSkeleton';
 import AnimatedButton from '../components/AnimatedButton';
 import Spotlight from '../components/Spotlight';
-
 import Logo from '../components/Logo';
 
 export default function Dashboard() {
-    // ... existing state ...
+    const [projects, setProjects] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
+    const [newProject, setNewProject] = useState({ name: '', githubRepo: '', slackChannel: '' });
+    const [repos, setRepos] = useState([]);
+    const [channels, setChannels] = useState([]);
+    const [integrations, setIntegrations] = useState([]);
 
-    // ... existing code ...
+    useEffect(() => {
+        loadData();
+    }, []);
+
+    const loadData = async () => {
+        try {
+            const [projectsRes, integrationsRes] = await Promise.all([
+                getProjects(),
+                getIntegrations()
+            ]);
+            setProjects(projectsRes.data);
+            setIntegrations(integrationsRes.data);
+
+            // Load repos/channels if integrations exist
+            const hasGithub = integrationsRes.data.some(i => i.type === 'github');
+            const hasSlack = integrationsRes.data.some(i => i.type === 'slack');
+
+            if (hasGithub) {
+                const reposRes = await getGitHubRepos();
+                setRepos(reposRes.data);
+            }
+            if (hasSlack) {
+                const channelsRes = await getSlackChannels();
+                setChannels(channelsRes.data);
+            }
+        } catch (err) {
+            console.error('Error loading data:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCreateProject = async (e) => {
+        e.preventDefault();
+        try {
+            await createProject(newProject);
+            setShowModal(false);
+            setNewProject({ name: '', githubRepo: '', slackChannel: '' });
+            loadData();
+        } catch (err) {
+            console.error('Error creating project:', err);
+        }
+    };
+
+    const handleDeleteProject = async (id) => {
+        if (!confirm('Are you sure you want to delete this project?')) return;
+        try {
+            await deleteProject(id);
+            loadData();
+        } catch (err) {
+            console.error('Error deleting project:', err);
+        }
+    };
+
+    const hasGithub = integrations.some(i => i.type === 'github');
+    const hasSlack = integrations.some(i => i.type === 'slack');
+
+    if (loading) {
+        return <GridSkeleton count={6} />;
+    }
 
     return (
         <motion.div
@@ -36,7 +100,22 @@ export default function Dashboard() {
                 </AnimatedButton>
             </header>
 
-            {/* ... alert code ... */}
+            {(!hasGithub || !hasSlack) && (
+                <motion.div
+                    className="alert alert-warning"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                >
+                    <span>⚠️</span>
+                    <div>
+                        Connect your integrations to get started.
+                        {!hasGithub && <span> GitHub not connected.</span>}
+                        {!hasSlack && <span> Slack not connected.</span>}
+                        <Link to="/settings"> Go to Settings →</Link>
+                    </div>
+                </motion.div>
+            )}
 
             {projects.length === 0 ? (
                 <motion.div
