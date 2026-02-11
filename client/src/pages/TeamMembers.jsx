@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import './TeamMembers.css';
 
 function TeamMembers() {
+    console.log("Rendering TeamMembers, useAuth:", useAuth);
     const [members, setMembers] = useState([]);
     const [invitations, setInvitations] = useState([]);
     const [organization, setOrganization] = useState(null);
