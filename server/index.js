@@ -87,7 +87,13 @@ async function startServer() {
 
     app.listen(PORT, '0.0.0.0', () => {
         console.log(`Server running on port ${PORT}`);
-        startScheduler();
+        // Start scheduler after server is listening
+        try {
+            startScheduler();
+            console.log('Scheduler started successfully');
+        } catch (err) {
+            console.error('Scheduler failed to start, but server is running:', err.message);
+        }
     });
 }
 
