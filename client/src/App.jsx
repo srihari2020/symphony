@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 import Login from './pages/Login';
@@ -38,6 +38,7 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          {/* Public Routes */}
           <Route path="/login" element={
             <PublicRoute><Login /></PublicRoute>
           } />
@@ -47,37 +48,23 @@ function App() {
           <Route path="/auth/github/callback" element={
             <GitHubAuthCallback />
           } />
-          <Route path="/integrations/github/callback" element={
-            <PrivateRoute><GitHubCallback /></PrivateRoute>
-          } />
-          <Route path="/integrations/slack/callback" element={
-            <PrivateRoute><SlackCallback /></PrivateRoute>
-          } />
-          <Route path="/" element={
+
+          {/* Protected Routes with Persistent Layout */}
+          <Route element={
             <PrivateRoute>
-              <Layout><Dashboard /></Layout>
+              <Layout><Outlet /></Layout>
             </PrivateRoute>
-          } />
-          <Route path="/project/:id" element={
-            <PrivateRoute>
-              <Layout><ProjectDetail /></Layout>
-            </PrivateRoute>
-          } />
-          <Route path="/settings" element={
-            <PrivateRoute>
-              <Layout><Settings /></Layout>
-            </PrivateRoute>
-          } />
-          <Route path="/team" element={
-            <PrivateRoute>
-              <TeamMembers />
-            </PrivateRoute>
-          } />
-          <Route path="/invitations" element={
-            <PrivateRoute>
-              <PendingInvitations />
-            </PrivateRoute>
-          } />
+          }>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/project/:id" element={<ProjectDetail />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/team" element={<TeamMembers />} />
+            <Route path="/invitations" element={<PendingInvitations />} />
+
+            {/* Callbacks that need auth but maybe not layout? Keeping in layout for consistency or moving out if needed */}
+            <Route path="/integrations/github/callback" element={<GitHubCallback />} />
+            <Route path="/integrations/slack/callback" element={<SlackCallback />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </AuthProvider>

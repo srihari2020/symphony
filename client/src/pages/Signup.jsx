@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import AnimatedButton from '../components/AnimatedButton';
 
 export default function Signup() {
     const [formData, setFormData] = useState({
@@ -34,13 +36,33 @@ export default function Signup() {
 
     return (
         <div className="auth-page">
-            <div className="auth-container">
+            <motion.div
+                className="auth-container"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+            >
                 <div className="auth-header">
-                    <h1 className="auth-logo">♪ Symphony</h1>
+                    <motion.h1
+                        className="auth-logo"
+                        initial={{ scale: 0.8 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.5, type: 'spring' }}
+                    >
+                        ♪ Symphony
+                    </motion.h1>
                     <p className="auth-subtitle">Create your account</p>
                 </div>
                 <form onSubmit={handleSubmit} className="auth-form">
-                    {error && <div className="error-message">{error}</div>}
+                    {error && (
+                        <motion.div
+                            className="error-message"
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                        >
+                            {error}
+                        </motion.div>
+                    )}
                     <div className="form-group">
                         <label>Name</label>
                         <input
@@ -85,14 +107,14 @@ export default function Signup() {
                             required
                         />
                     </div>
-                    <button type="submit" className="btn btn-primary" disabled={loading}>
+                    <AnimatedButton type="submit" variant="primary" disabled={loading} className="w-full">
                         {loading ? 'Creating account...' : 'Create Account'}
-                    </button>
+                    </AnimatedButton>
                 </form>
                 <p className="auth-footer">
                     Already have an account? <Link to="/login">Sign in</Link>
                 </p>
-            </div>
+            </motion.div>
         </div>
     );
 }

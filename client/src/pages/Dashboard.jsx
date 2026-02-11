@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { getProjects, createProject, deleteProject, getIntegrations, getGitHubRepos, getSlackChannels } from '../api';
+import { GridSkeleton } from '../components/LoadingSkeleton';
+import AnimatedButton from '../components/AnimatedButton';
 
 export default function Dashboard() {
     const [projects, setProjects] = useState([]);
@@ -69,20 +72,36 @@ export default function Dashboard() {
     const hasSlack = integrations.some(i => i.type === 'slack');
 
     if (loading) {
-        return <div className="loading">Loading...</div>;
+        return <GridSkeleton count={6} />;
     }
 
     return (
-        <div className="dashboard">
+        <motion.div
+            className="dashboard"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+        >
             <header className="page-header">
-                <h1>Projects</h1>
-                <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+                <motion.h1
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    Projects
+                </motion.h1>
+                <AnimatedButton variant="primary" onClick={() => setShowModal(true)}>
                     + New Project
-                </button>
+                </AnimatedButton>
             </header>
 
             {(!hasGithub || !hasSlack) && (
-                <div className="alert alert-warning">
+                <motion.div
+                    className="alert alert-warning"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                >
                     <span>⚠️</span>
                     <div>
                         Connect your integrations to get started.
@@ -90,31 +109,62 @@ export default function Dashboard() {
                         {!hasSlack && <span> Slack not connected.</span>}
                         <Link to="/settings"> Go to Settings →</Link>
                     </div>
-                </div>
+                </motion.div>
             )}
 
             {projects.length === 0 ? (
-                <div className="empty-state">
+                <motion.div
+                    className="empty-state"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3 }}
+                >
                     <div className="empty-icon">📁</div>
                     <h2>No projects yet</h2>
                     <p>Create your first project to start tracking GitHub and Slack activity.</p>
-                    <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+                    <AnimatedButton variant="primary" onClick={() => setShowModal(true)}>
                         Create Project
-                    </button>
-                </div>
+                    </AnimatedButton>
+                </motion.div>
             ) : (
-                <div className="project-grid">
-                    {projects.map(project => (
-                        <div key={project._id} className="project-card">
+                <motion.div
+                    className="project-grid"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                        hidden: { opacity: 0 },
+                        visible: {
+                            opacity: 1,
+                            transition: {
+                                staggerChildren: 0.1
+                            }
+                        }
+                    }}
+                >
+                    {projects.map((project, index) => (
+                        <motion.div
+                            key={project._id}
+                            className="project-card"
+                            variants={{
+                                hidden: { opacity: 0, y: 20 },
+                                visible: { opacity: 1, y: 0 }
+                            }}
+                            whileHover={{
+                                y: -5,
+                                transition: { duration: 0.2 }
+                            }}
+                        >
                             <div className="project-card-header">
                                 <h3>{project.name}</h3>
-                                <button
+                                <motion.button
                                     className="btn-icon"
                                     onClick={() => handleDeleteProject(project._id)}
                                     title="Delete project"
+                                    whileHover={{ scale: 1.1, rotate: 5 }}
+                                    whileTap={{ scale: 0.95 }}
                                 >
                                     🗑️
-                                </button>
+                                </motion.button>
                             </div>
                             <div className="project-card-body">
                                 {project.githubRepo && (
@@ -133,70 +183,85 @@ export default function Dashboard() {
                             <Link to={`/project/${project._id}`} className="btn btn-secondary">
                                 View Dashboard →
                             </Link>
-                        </div>
+                        </motion.div>
                     ))}
-                </div>
+                </motion.div>
             )}
 
-            {showModal && (
-                <div className="modal-overlay" onClick={() => setShowModal(false)}>
-                    <div className="modal" onClick={e => e.stopPropagation()}>
-                        <h2>Create New Project</h2>
-                        <form onSubmit={handleCreateProject}>
-                            <div className="form-group">
-                                <label>Project Name</label>
-                                <input
-                                    type="text"
-                                    value={newProject.name}
-                                    onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-                                    placeholder="My Awesome Project"
-                                    required
-                                />
-                            </div>
-                            {hasGithub && (
+            <AnimatePresence>
+                {showModal && (
+                    <motion.div
+                        className="modal-overlay"
+                        onClick={() => setShowModal(false)}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <motion.div
+                            className="modal"
+                            onClick={e => e.stopPropagation()}
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                        >
+                            <h2>Create New Project</h2>
+                            <form onSubmit={handleCreateProject}>
                                 <div className="form-group">
-                                    <label>GitHub Repository</label>
-                                    <select
-                                        value={newProject.githubRepo}
-                                        onChange={(e) => setNewProject({ ...newProject, githubRepo: e.target.value })}
-                                    >
-                                        <option value="">Select a repository</option>
-                                        {repos.map(repo => (
-                                            <option key={repo.fullName} value={repo.fullName}>
-                                                {repo.fullName} {repo.private && '🔒'}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <label>Project Name</label>
+                                    <input
+                                        type="text"
+                                        value={newProject.name}
+                                        onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
+                                        placeholder="My Awesome Project"
+                                        required
+                                    />
                                 </div>
-                            )}
-                            {hasSlack && (
-                                <div className="form-group">
-                                    <label>Slack Channel</label>
-                                    <select
-                                        value={newProject.slackChannel}
-                                        onChange={(e) => setNewProject({ ...newProject, slackChannel: e.target.value })}
-                                    >
-                                        <option value="">Select a channel</option>
-                                        {channels.map(channel => (
-                                            <option key={channel.id} value={channel.id}>
-                                                #{channel.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                {hasGithub && (
+                                    <div className="form-group">
+                                        <label>GitHub Repository</label>
+                                        <select
+                                            value={newProject.githubRepo}
+                                            onChange={(e) => setNewProject({ ...newProject, githubRepo: e.target.value })}
+                                        >
+                                            <option value="">Select a repository</option>
+                                            {repos.map(repo => (
+                                                <option key={repo.fullName} value={repo.fullName}>
+                                                    {repo.fullName} {repo.private && '🔒'}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
+                                {hasSlack && (
+                                    <div className="form-group">
+                                        <label>Slack Channel</label>
+                                        <select
+                                            value={newProject.slackChannel}
+                                            onChange={(e) => setNewProject({ ...newProject, slackChannel: e.target.value })}
+                                        >
+                                            <option value="">Select a channel</option>
+                                            {channels.map(channel => (
+                                                <option key={channel.id} value={channel.id}>
+                                                    #{channel.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
+                                <div className="modal-actions">
+                                    <AnimatedButton variant="secondary" type="button" onClick={() => setShowModal(false)}>
+                                        Cancel
+                                    </AnimatedButton>
+                                    <AnimatedButton variant="primary" type="submit">
+                                        Create Project
+                                    </AnimatedButton>
                                 </div>
-                            )}
-                            <div className="modal-actions">
-                                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
-                                    Cancel
-                                </button>
-                                <button type="submit" className="btn btn-primary">
-                                    Create Project
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-        </div>
+                            </form>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </motion.div>
     );
 }

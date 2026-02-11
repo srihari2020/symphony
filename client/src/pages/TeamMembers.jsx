@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ListSkeleton } from '../components/LoadingSkeleton';
+import AnimatedButton from '../components/AnimatedButton';
 import './TeamMembers.css';
 
 function TeamMembers() {
@@ -167,7 +169,7 @@ function TeamMembers() {
     };
 
     if (loading) {
-        return <Layout><div className="loading">Loading team members...</div></Layout>;
+        return <Layout><ListSkeleton count={5} /></Layout>;
     }
 
     const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
@@ -176,29 +178,52 @@ function TeamMembers() {
     const canInvite = currentMember && ['owner', 'admin'].includes(currentMember.role);
 
     return (
-        <Layout>
-            <div className="team-members-page">
-                <div className="page-header">
-                    <div>
-                        <h1>Team Members</h1>
-                        <p className="page-subtitle">{organization?.name || 'Organization'}</p>
-                    </div>
-                    {canInvite && (
-                        <button className="btn-primary" onClick={() => setShowInviteModal(true)}>
-                            + Invite Member
-                        </button>
-                    )}
+        <motion.div
+            className="team-members-page"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+        >
+            <div className="page-header">
+                <div>
+                    <motion.h1
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        Team Members
+                    </motion.h1>
+                    <p className="page-subtitle">{organization?.name || 'Organization'}</p>
                 </div>
+                {canInvite && (
+                    <AnimatedButton variant="primary" onClick={() => setShowInviteModal(true)}>
+                        + Invite Member
+                    </AnimatedButton>
+                )}
+            </div>
 
-                {error && <div className="error-message">{error}</div>}
+            {error && (
+                <motion.div
+                    className="error-message"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                >
+                    {error}
+                </motion.div>
+            )}
 
-                {members.length === 0 ? (
-                    <div className="empty-state">
-                        <h2>No Team Members Found</h2>
-                        <p>Your organization needs to be migrated to the new team system.</p>
-                        <p><strong>Run this in the browser console (F12):</strong></p>
-                        <pre style={{ background: '#2a2a2a', padding: '1rem', borderRadius: '8px', overflowX: 'auto', fontSize: '0.85rem' }}>
-                            {`fetch('${import.meta.env.VITE_API_URL}/organizations/migrate-members', {
+            {members.length === 0 ? (
+                <motion.div
+                    className="empty-state"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2 }}
+                >
+                    <h2>No Team Members Found</h2>
+                    <p>Your organization needs to be migrated to the new team system.</p>
+                    <p><strong>Run this in the browser console (F12):</strong></p>
+                    <pre style={{ background: '#2a2a2a', padding: '1rem', borderRadius: '8px', overflowX: 'auto', fontSize: '0.85rem' }}>
+                        {`fetch('${import.meta.env.VITE_API_URL}/organizations/migrate-members', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer ' + localStorage.getItem('token'),
@@ -208,56 +233,94 @@ function TeamMembers() {
   console.log('✅', data);
   window.location.reload();
 });`}
-                        </pre>
-                        <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>After running this,the page will refresh and show your team!</p>
-                    </div>
-                ) : (
-                    <div className="members-grid">
-                        {members.map(member => (
-                            <div key={member._id} className="member-card">
-                                <div className="member-avatar">
-                                    {getInitials(member.user.name)}
-                                </div>
-                                <div className="member-info">
-                                    <h3>{member.user.name}</h3>
-                                    <p className="member-email">{member.user.email}</p>
-                                    <span className={`role-badge ${getRoleBadgeClass(member.role)}`}>
-                                        {member.role}
-                                    </span>
-                                    {member.joinedAt && (
-                                        <p className="member-joined">
-                                            Joined {new Date(member.joinedAt).toLocaleDateString()}
-                                        </p>
-                                    )}
-                                </div>
-                                {canInvite && member.role !== 'owner' && member.user._id !== userId && member.user.id !== userId && (
-                                    <div className="member-actions">
-                                        {currentMember.role === 'owner' && (
-                                            <select
-                                                value={member.role}
-                                                onChange={(e) => handleChangeRole(member.user._id, e.target.value)}
-                                                className="role-select"
-                                            >
-                                                <option value="admin">Admin</option>
-                                                <option value="member">Member</option>
-                                            </select>
-                                        )}
-                                        <button
-                                            className="btn-danger-small"
-                                            onClick={() => handleRemoveMember(member.user._id)}
-                                        >
-                                            Remove
-                                        </button>
-                                    </div>
+                    </pre>
+                    <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>After running this,the page will refresh and show your team!</p>
+                </motion.div>
+            ) : (
+                <motion.div
+                    className="members-grid"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                        hidden: { opacity: 0 },
+                        visible: {
+                            opacity: 1,
+                            transition: {
+                                staggerChildren: 0.1
+                            }
+                        }
+                    }}
+                >
+                    {members.map(member => (
+                        <motion.div
+                            key={member._id}
+                            className="member-card"
+                            variants={{
+                                hidden: { opacity: 0, y: 20 },
+                                visible: { opacity: 1, y: 0 }
+                            }}
+                            whileHover={{
+                                y: -5,
+                                transition: { duration: 0.2 }
+                            }}
+                        >
+                            <div className="member-avatar">
+                                {getInitials(member.user.name)}
+                            </div>
+                            <div className="member-info">
+                                <h3>{member.user.name}</h3>
+                                <p className="member-email">{member.user.email}</p>
+                                <span className={`role-badge ${getRoleBadgeClass(member.role)}`}>
+                                    {member.role}
+                                </span>
+                                {member.joinedAt && (
+                                    <p className="member-joined">
+                                        Joined {new Date(member.joinedAt).toLocaleDateString()}
+                                    </p>
                                 )}
                             </div>
-                        ))}
-                    </div>
-                )}
+                            {canInvite && member.role !== 'owner' && member.user._id !== userId && member.user.id !== userId && (
+                                <div className="member-actions">
+                                    {currentMember.role === 'owner' && (
+                                        <select
+                                            value={member.role}
+                                            onChange={(e) => handleChangeRole(member.user._id, e.target.value)}
+                                            className="role-select"
+                                        >
+                                            <option value="admin">Admin</option>
+                                            <option value="member">Member</option>
+                                        </select>
+                                    )}
+                                    <button
+                                        className="btn-danger-small"
+                                        onClick={() => handleRemoveMember(member.user._id)}
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            )}
+                        </motion.div>
+                    ))}
+                </motion.div>
+            )}
 
+            <AnimatePresence>
                 {showInviteModal && (
-                    <div className="modal-overlay" onClick={() => setShowInviteModal(false)}>
-                        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                    <motion.div
+                        className="modal-overlay"
+                        onClick={() => setShowInviteModal(false)}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <motion.div
+                            className="modal-content"
+                            onClick={(e) => e.stopPropagation()}
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                        >
                             <h2>Invite Team Member</h2>
                             <form onSubmit={handleInvite}>
                                 <div className="form-group">
@@ -279,19 +342,19 @@ function TeamMembers() {
                                 </div>
                                 {error && <div className="error-message">{error}</div>}
                                 <div className="modal-actions">
-                                    <button type="button" className="btn-secondary" onClick={() => setShowInviteModal(false)}>
+                                    <AnimatedButton variant="secondary" type="button" onClick={() => setShowInviteModal(false)}>
                                         Cancel
-                                    </button>
-                                    <button type="submit" className="btn-primary">
+                                    </AnimatedButton>
+                                    <AnimatedButton variant="primary" type="submit">
                                         Send Invitation
-                                    </button>
+                                    </AnimatedButton>
                                 </div>
                             </form>
-                        </div>
-                    </div>
+                        </motion.div>
+                    </motion.div>
                 )}
-            </div>
-        </Layout>
+            </AnimatePresence>
+        </motion.div>
     );
 }
 

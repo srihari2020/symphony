@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ListSkeleton } from '../components/LoadingSkeleton';
+import AnimatedButton from '../components/AnimatedButton';
 import './PendingInvitations.css';
 
 function PendingInvitations() {
@@ -73,24 +75,74 @@ function PendingInvitations() {
     };
 
     if (loading) {
-        return <Layout><div className="loading">Loading invitations...</div></Layout>;
+        return <Layout><ListSkeleton count={3} /></Layout>;
     }
 
     return (
-        <Layout>
-            <div className="invitations-page">
-                <h1>Pending Invitations</h1>
+        <motion.div
+            className="invitations-page"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+        >
+            <motion.h1
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+            >
+                Pending Invitations
+            </motion.h1>
 
-                {error && <div className="error-message">{error}</div>}
+            {error && (
+                <motion.div
+                    className="error-message"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                >
+                    {error}
+                </motion.div>
+            )}
 
-                {invitations.length === 0 ? (
-                    <div className="empty-state">
-                        <p>You have no pending invitations.</p>
-                    </div>
-                ) : (
-                    <div className="invitations-list">
+            {invitations.length === 0 ? (
+                <motion.div
+                    className="empty-state"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2 }}
+                >
+                    <p>You have no pending invitations.</p>
+                </motion.div>
+            ) : (
+                <motion.div
+                    className="invitations-list"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                        hidden: { opacity: 0 },
+                        visible: {
+                            opacity: 1,
+                            transition: {
+                                staggerChildren: 0.1
+                            }
+                        }
+                    }}
+                >
+                    <AnimatePresence>
                         {invitations.map(invitation => (
-                            <div key={invitation._id} className="invitation-card">
+                            <motion.div
+                                key={invitation._id}
+                                className="invitation-card"
+                                layout
+                                variants={{
+                                    hidden: { opacity: 0, y: 20 },
+                                    visible: { opacity: 1, y: 0 }
+                                }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                whileHover={{
+                                    y: -5,
+                                    transition: { duration: 0.2 }
+                                }}
+                            >
                                 <div className="invitation-info">
                                     <h3>{invitation.organization.name}</h3>
                                     <p className="invitation-details">
@@ -104,25 +156,25 @@ function PendingInvitations() {
                                     </p>
                                 </div>
                                 <div className="invitation-actions">
-                                    <button
-                                        className="btn-primary"
+                                    <AnimatedButton
+                                        variant="primary"
                                         onClick={() => handleAccept(invitation.token)}
                                     >
                                         Accept
-                                    </button>
-                                    <button
-                                        className="btn-secondary"
+                                    </AnimatedButton>
+                                    <AnimatedButton
+                                        variant="secondary"
                                         onClick={() => handleDecline(invitation._id)}
                                     >
                                         Decline
-                                    </button>
+                                    </AnimatedButton>
                                 </div>
-                            </div>
+                            </motion.div>
                         ))}
-                    </div>
-                )}
-            </div>
-        </Layout>
+                    </AnimatePresence>
+                </motion.div>
+            )}
+        </motion.div>
     );
 }
 
