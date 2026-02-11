@@ -6,6 +6,63 @@ import { authenticate } from '../middleware/auth.js';
 
 const router = express.Router();
 
+// Migration endpoint - MUST be first, no org membership required
+router.post('/migrate-members', authenticate, async (req, res) => {
+    try {
+        const orgs = await Organization.find({});
+        let created = 0;
+
+        for (const org of orgs) {
+            // Check if owner has a member record
+            const ownerMember = await OrganizationMember.findOne({
+                organization: org._id,
+                user: org.owner
+            });
+
+            if (!ownerMember) {
+                // Create owner member record
+                await OrganizationMember.create({
+                    organization: org._id,
+                    user: org.owner,
+                    role: 'owner'
+                });
+                created++;
+                console.log(`Created owner member for org: ${org.name}`);
+            }
+
+            // Create member records for other members
+            for (const memberId of org.members) {
+                if (memberId.toString() === org.owner.toString()) continue;
+
+                const existingMember = await OrganizationMember.findOne({
+                    organization: org._id,
+                    user: memberId
+                });
+
+                if (!existingMember) {
+                    await OrganizationMember.create({
+                        organization: org._id,
+                        user: memberId,
+                        role: 'member'
+                    });
+                    created++;
+                    console.log(`Created member for org: ${org.name}`);
+                }
+            }
+        }
+
+        res.json({
+            message: 'Migration complete',
+            organizationsProcessed: orgs.length,
+            membersCreated: created
+        });
+    } catch (error) {
+        console.error('Migration error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
 // Get user's organization
 router.get('/current', authenticate, async (req, res) => {
     try {
