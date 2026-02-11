@@ -4,6 +4,67 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import Logo from './Logo';
 
+const SidebarItem = ({ to, icon, children }) => {
+    return (
+        <NavLink to={to} style={{ textDecoration: 'none' }}>
+            {({ isActive }) => (
+                <motion.li
+                    style={{
+                        position: 'relative',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.75rem',
+                        padding: '0.875rem 1rem',
+                        borderRadius: '12px',
+                        color: isActive ? '#fff' : '#a0a0b0',
+                        cursor: 'pointer',
+                        overflow: 'hidden',
+                        fontWeight: 500,
+                        fontSize: '0.95rem'
+                    }}
+                    whileHover={{ scale: 1.02, x: 4, color: '#fff', backgroundColor: 'rgba(255, 255, 255, 0.03)' }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                >
+                    {isActive && (
+                        <motion.div
+                            layoutId="active-nav-bg"
+                            style={{
+                                position: 'absolute',
+                                inset: 0,
+                                borderRadius: '12px',
+                                background: 'linear-gradient(135deg, rgba(45, 212, 191, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)', // Teal transparent gradient
+                                border: '1px solid rgba(45, 212, 191, 0.3)',
+                                zIndex: 0
+                            }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                        />
+                    )}
+                    <span style={{ fontSize: '1.25rem', zIndex: 1, filter: isActive ? 'drop-shadow(0 0 8px rgba(45, 212, 191, 0.5))' : 'none' }}>{icon}</span>
+                    <span style={{ zIndex: 1 }}>{children}</span>
+                    {isActive && (
+                        <motion.div
+                            layoutId="active-nav-indicator"
+                            style={{
+                                position: 'absolute',
+                                left: 0,
+                                top: '15%',
+                                bottom: '15%',
+                                width: '4px',
+                                borderRadius: '0 4px 4px 0',
+                                background: '#2dd4bf', // Teal accent
+                                zIndex: 1
+                            }}
+                        />
+                    )}
+                </motion.li>
+            )}
+        </NavLink>
+    );
+};
+
 export default function Layout({ children }) {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
@@ -30,40 +91,19 @@ export default function Layout({ children }) {
                         <Logo variant="teal" />
                     </motion.div>
                 </div>
-                <motion.nav
-                    className="sidebar-nav"
-                    initial="hidden"
-                    animate="visible"
-                    variants={{
-                        hidden: { opacity: 0 },
-                        visible: {
-                            opacity: 1,
-                            transition: {
-                                staggerChildren: 0.1,
-                                delayChildren: 0.3
-                            }
-                        }
-                    }}
-                >
-                    <motion.div variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}>
-                        <NavLink to="/" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
-                            <span className="nav-icon">📊</span>
-                            Dashboard
-                        </NavLink>
-                    </motion.div>
-                    <motion.div variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}>
-                        <NavLink to="/team" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
-                            <span className="nav-icon">👥</span>
-                            Team
-                        </NavLink>
-                    </motion.div>
-                    <motion.div variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}>
-                        <NavLink to="/settings" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
-                            <span className="nav-icon">⚙️</span>
-                            Settings
-                        </NavLink>
-                    </motion.div>
-                </motion.nav>
+                <nav className="sidebar-nav">
+                    <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {[
+                            { path: '/', icon: '📊', label: 'Dashboard' },
+                            { path: '/team', icon: '👥', label: 'Team' },
+                            { path: '/settings', icon: '⚙️', label: 'Settings' }
+                        ].map((item) => (
+                            <SidebarItem key={item.path} to={item.path} icon={item.icon}>
+                                {item.label}
+                            </SidebarItem>
+                        ))}
+                    </ul>
+                </nav>
                 <motion.div
                     className="sidebar-footer"
                     initial={{ opacity: 0, y: 20 }}
