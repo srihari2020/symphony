@@ -6,6 +6,8 @@ import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import ProjectDetail from './pages/ProjectDetail';
 import Settings from './pages/Settings';
+import TeamMembers from './pages/TeamMembers';
+import PendingInvitations from './pages/PendingInvitations';
 import GitHubCallback from './pages/GitHubCallback';
 import SlackCallback from './pages/SlackCallback';
 import GitHubAuthCallback from './pages/GitHubAuthCallback';
@@ -64,6 +66,16 @@ function App() {
           <Route path="/settings" element={
             <PrivateRoute>
               <Layout><Settings /></Layout>
+            </PrivateRoute>
+          } />
+          <Route path="/team" element={
+            <PrivateRoute>
+              <TeamMembers />
+            </PrivateRoute>
+          } />
+          <Route path="/invitations" element={
+            <PrivateRoute>
+              <PendingInvitations />
             </PrivateRoute>
           } />
         </Routes>

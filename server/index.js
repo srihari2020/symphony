@@ -8,6 +8,8 @@ import authRoutes from './routes/auth.js';
 import orgRoutes from './routes/organizations.js';
 import projectRoutes from './routes/projects.js';
 import integrationRoutes from './routes/integrations.js';
+import memberRoutes from './routes/members.js';
+import invitationRoutes from './routes/invitations.js';
 import { startScheduler } from './services/scheduler.js';
 
 dotenv.config();
@@ -37,8 +39,10 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/organizations', orgRoutes);
+app.use('/api/organizations', memberRoutes); // Member routes use org prefix
 app.use('/api/projects', projectRoutes);
 app.use('/api/integrations', integrationRoutes);
+app.use('/api/invitations', invitationRoutes);
 
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });

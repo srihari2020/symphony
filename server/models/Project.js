@@ -5,6 +5,7 @@ const projectSchema = new mongoose.Schema({
     organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true },
     githubRepo: { type: String }, // e.g., "owner/repo"
     slackChannel: { type: String },
+    assignedMembers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     createdAt: { type: Date, default: Date.now }
 });
 

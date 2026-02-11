@@ -21,6 +21,10 @@ export default function Layout({ children }) {
                         <span className="nav-icon">📊</span>
                         Dashboard
                     </NavLink>
+                    <NavLink to="/team" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+                        <span className="nav-icon">👥</span>
+                        Team
+                    </NavLink>
                     <NavLink to="/settings" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
                         <span className="nav-icon">⚙️</span>
                         Settings

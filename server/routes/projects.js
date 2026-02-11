@@ -12,7 +12,8 @@ router.get('/', authenticate, async (req, res) => {
         if (!req.user.organization) {
             return res.json([]);
         }
-        const projects = await Project.find({ organization: req.user.organization });
+        const projects = await Project.find({ organization: req.user.organization })
+            .populate('assignedMembers', 'name email');
         res.json(projects);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -22,7 +23,8 @@ router.get('/', authenticate, async (req, res) => {
 // Get single project
 router.get('/:id', authenticate, async (req, res) => {
     try {
-        const project = await Project.findById(req.params.id);
+        const project = await Project.findById(req.params.id)
+            .populate('assignedMembers', 'name email');
         if (!project) {
             return res.status(404).json({ error: 'Project not found' });
         }
@@ -35,7 +37,7 @@ router.get('/:id', authenticate, async (req, res) => {
 // Create project
 router.post('/', authenticate, async (req, res) => {
     try {
-        const { name, githubRepo, slackChannel } = req.body;
+        const { name, githubRepo, slackChannel, assignedMembers = [] } = req.body;
 
         if (!req.user.organization) {
             return res.status(400).json({ error: 'User must belong to an organization' });
@@ -45,9 +47,13 @@ router.post('/', authenticate, async (req, res) => {
             name,
             organization: req.user.organization,
             githubRepo,
-            slackChannel
+            slackChannel,
+            assignedMembers
         });
         await project.save();
+
+        // Populate assigned members for response
+        await project.populate('assignedMembers', 'name email');
 
         res.status(201).json(project);
     } catch (error) {
@@ -58,12 +64,13 @@ router.post('/', authenticate, async (req, res) => {
 // Update project
 router.put('/:id', authenticate, async (req, res) => {
     try {
-        const { name, githubRepo, slackChannel } = req.body;
+        const { name, githubRepo, slackChannel, assignedMembers } = req.body;
         const project = await Project.findByIdAndUpdate(
             req.params.id,
-            { name, githubRepo, slackChannel },
+            { name, githubRepo, slackChannel, assignedMembers },
             { new: true }
-        );
+        ).populate('assignedMembers', 'name email');
+
         res.json(project);
     } catch (error) {
         res.status(500).json({ error: error.message });

@@ -1,5 +1,6 @@
 import express from 'express';
 import Organization from '../models/Organization.js';
+import OrganizationMember from '../models/OrganizationMember.js';
 import User from '../models/User.js';
 import { authenticate } from '../middleware/auth.js';
 
@@ -33,6 +34,14 @@ router.post('/', authenticate, async (req, res) => {
             members: [req.user._id]
         });
         await org.save();
+
+        // Create organization member record with owner role
+        const member = new OrganizationMember({
+            organization: org._id,
+            user: req.user._id,
+            role: 'owner'
+        });
+        await member.save();
 
         // Update user's organization
         await User.findByIdAndUpdate(req.user._id, { organization: org._id });
