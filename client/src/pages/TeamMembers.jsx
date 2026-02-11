@@ -170,8 +170,9 @@ function TeamMembers() {
         return <Layout><div className="loading">Loading team members...</div></Layout>;
     }
 
-    const currentUser = JSON.parse(localStorage.getItem('user'));
-    const currentMember = members.find(m => m.user._id === currentUser.id);
+    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = currentUser?._id || currentUser?.id;
+    const currentMember = members.find(m => m.user._id === userId || m.user.id === userId);
     const canInvite = currentMember && ['owner', 'admin'].includes(currentMember.role);
 
     return (
@@ -229,7 +230,7 @@ function TeamMembers() {
                                         </p>
                                     )}
                                 </div>
-                                {canInvite && member.role !== 'owner' && member.user._id !== currentUser.id && (
+                                {canInvite && member.role !== 'owner' && member.user._id !== userId && member.user.id !== userId && (
                                     <div className="member-actions">
                                         {currentMember.role === 'owner' && (
                                             <select
