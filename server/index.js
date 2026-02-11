@@ -46,7 +46,12 @@ app.get('/api/health', (req, res) => {
 
 // Connect to MongoDB and start server
 async function startServer() {
+    console.log('=== Starting Symphony Server ===');
+    console.log('NODE_ENV:', process.env.NODE_ENV);
+    console.log('PORT:', process.env.PORT || 5000);
+
     let mongoUri = process.env.MONGODB_URI;
+    console.log('MongoDB URI provided:', mongoUri ? 'Yes (length: ' + mongoUri.length + ')' : 'No');
 
     const mongoOptions = {
         serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
@@ -55,31 +60,37 @@ async function startServer() {
 
     // If using localhost MongoDB, try to connect; if it fails, use in-memory MongoDB
     if (!mongoUri || mongoUri.includes('localhost') || mongoUri.includes('127.0.0.1')) {
+        console.log('Attempting local MongoDB connection...');
         try {
             // Try connecting to local MongoDB first
             await mongoose.connect(mongoUri || 'mongodb://localhost:27017/symphony', mongoOptions);
-            console.log('Connected to local MongoDB');
+            console.log('✓ Connected to local MongoDB');
         } catch (err) {
             console.log('Local MongoDB not available, starting in-memory MongoDB server...');
             const mongod = await MongoMemoryServer.create();
             mongoUri = mongod.getUri();
             await mongoose.connect(mongoUri, mongoOptions);
-            console.log('Connected to in-memory MongoDB (data will not persist after restart)');
+            console.log('✓ Connected to in-memory MongoDB (data will not persist after restart)');
         }
     } else {
         // For remote MongoDB (like Atlas), connect directly with retries
+        console.log('Attempting remote MongoDB connection...');
         let retries = 3;
         while (retries > 0) {
             try {
+                console.log(`Connection attempt ${4 - retries} of 3...`);
                 await mongoose.connect(mongoUri, mongoOptions);
-                console.log('Connected to MongoDB');
+                console.log('✓ Connected to MongoDB Atlas');
                 break;
             } catch (err) {
                 retries--;
-                console.log(`MongoDB connection failed. Retries left: ${retries}`);
+                console.error(`✗ MongoDB connection failed:`, err.message);
+                console.log(`Retries left: ${retries}`);
                 if (retries === 0) {
+                    console.error('!!! Failed to connect to MongoDB after 3 attempts');
                     throw err;
                 }
+                console.log('Waiting 5 seconds before retry...');
                 await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds before retry
             }
         }
