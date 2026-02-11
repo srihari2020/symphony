@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import Logo from './Logo';
 
+import Link from 'react-router-dom';
+import { DashboardIcon, TeamIcon, SettingsIcon } from './SidebarIcons';
 import Magnetic from './Magnetic';
 
 const SidebarItem = ({ to, Icon, children }) => {
