@@ -47,14 +47,13 @@ body {
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     position: relative;
+    /* Premium Mesh Gradient Background */
+    background:
+        radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08) 0%, transparent 25%),
+        linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    background-attachment: fixed;
 }
-
-position: relative;
-}
-
-/* body::before removed for troubleshooting */
-
-/* Loading */
 
 /* Loading */
 .loading {
