@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import AnimatedButton from '../components/AnimatedButton';
+import Logo from '../components/Logo';
 
 // Google Sign-In Script Loader
 const loadGoogleScript = () => {
@@ -92,14 +93,9 @@ export default function Login() {
                 transition={{ duration: 0.4 }}
             >
                 <div className="auth-header">
-                    <motion.h1
-                        className="auth-logo"
-                        initial={{ scale: 0.8 }}
-                        animate={{ scale: 1 }}
-                        transition={{ duration: 0.5, type: 'spring' }}
-                    >
-                        ♪ Symphony
-                    </motion.h1>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+                        <Logo size="large" />
+                    </div>
                     <p className="auth-subtitle">Welcome back</p>
                 </div>
 

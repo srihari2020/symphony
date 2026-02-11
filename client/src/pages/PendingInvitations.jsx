@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ListSkeleton } from '../components/LoadingSkeleton';
 import AnimatedButton from '../components/AnimatedButton';
+import Spotlight from '../components/Spotlight';
 import './PendingInvitations.css';
 
 function PendingInvitations() {
@@ -129,7 +130,7 @@ function PendingInvitations() {
                 >
                     <AnimatePresence>
                         {invitations.map(invitation => (
-                            <motion.div
+                            <Spotlight
                                 key={invitation._id}
                                 className="invitation-card"
                                 layout
@@ -169,7 +170,7 @@ function PendingInvitations() {
                                         Decline
                                     </AnimatedButton>
                                 </div>
-                            </motion.div>
+                            </Spotlight>
                         ))}
                     </AnimatePresence>
                 </motion.div>

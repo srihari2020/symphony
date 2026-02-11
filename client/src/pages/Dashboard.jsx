@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { getProjects, createProject, deleteProject, getIntegrations, getGitHubRepos, getSlackChannels } from '../api';
 import { GridSkeleton } from '../components/LoadingSkeleton';
 import AnimatedButton from '../components/AnimatedButton';
+import Spotlight from '../components/Spotlight';
 
 export default function Dashboard() {
     const [projects, setProjects] = useState([]);
@@ -142,7 +143,7 @@ export default function Dashboard() {
                     }}
                 >
                     {projects.map((project, index) => (
-                        <motion.div
+                        <Spotlight
                             key={project._id}
                             className="project-card"
                             variants={{
@@ -183,7 +184,7 @@ export default function Dashboard() {
                             <Link to={`/project/${project._id}`} className="btn btn-secondary">
                                 View Dashboard →
                             </Link>
-                        </motion.div>
+                        </Spotlight>
                     ))}
                 </motion.div>
             )}

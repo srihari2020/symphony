@@ -1,7 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { useAuth } from '../context/AuthContext';
-import AnimatedButton from './AnimatedButton';
+import Logo from './Logo';
 
 export default function Layout({ children }) {
     const { user, logout } = useAuth();
@@ -16,19 +13,18 @@ export default function Layout({ children }) {
         <div className="app-layout">
             <motion.aside
                 className="sidebar"
-                initial={{ x: -260 }}
+                initial={{ x: -280 }}
                 animate={{ x: 0 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             >
                 <div className="sidebar-header">
-                    <motion.h1
-                        className="logo"
+                    <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.2 }}
                     >
-                        ♪ Symphony
-                    </motion.h1>
+                        <Logo />
+                    </motion.div>
                 </div>
                 <motion.nav
                     className="sidebar-nav"

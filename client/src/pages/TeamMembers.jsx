@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ListSkeleton } from '../components/LoadingSkeleton';
 import AnimatedButton from '../components/AnimatedButton';
+import Spotlight from '../components/Spotlight';
 import './TeamMembers.css';
 
 function TeamMembers() {
@@ -252,7 +253,7 @@ function TeamMembers() {
                     }}
                 >
                     {members.map(member => (
-                        <motion.div
+                        <Spotlight
                             key={member._id}
                             className="member-card"
                             variants={{
@@ -299,7 +300,7 @@ function TeamMembers() {
                                     </button>
                                 </div>
                             )}
-                        </motion.div>
+                        </Spotlight>
                     ))}
                 </motion.div>
             )}
