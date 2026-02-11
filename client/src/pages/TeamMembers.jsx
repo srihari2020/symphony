@@ -21,21 +21,28 @@ function TeamMembers() {
     const fetchData = async () => {
         try {
             const token = localStorage.getItem('token');
+            console.log('Fetching organization data...');
 
             //Get organization
             const orgRes = await fetch(`${import.meta.env.VITE_API_URL}/organizations/current`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
+            console.log('Organization response status:', orgRes.status);
+
             if (!orgRes.ok) {
+                const errorText = await orgRes.text();
+                console.error('Failed to fetch organization:', errorText);
                 navigate('/dashboard');
                 return;
             }
 
             const orgData = await orgRes.json();
+            console.log('Organization data:', orgData);
             setOrganization(orgData);
 
             // Get members
+            console.log('Fetching members...');
             const membersRes = await fetch(
                 `${import.meta.env.VITE_API_URL}/organizations/${orgData._id}/members`,
                 {
@@ -43,13 +50,21 @@ function TeamMembers() {
                 }
             );
 
+            console.log('Members response status:', membersRes.status);
+
             if (membersRes.ok) {
                 const membersData = await membersRes.json();
+                console.log('Members data:', membersData);
                 setMembers(membersData);
+            } else {
+                const errorText = await membersRes.text();
+                console.error('Failed to fetch members:', errorText);
+                setError('Failed to load team members. You may need to run the migration script.');
             }
 
             setLoading(false);
         } catch (err) {
+            console.error('Error in fetchData:', err);
             setError(err.message);
             setLoading(false);
         }

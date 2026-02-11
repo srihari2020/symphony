@@ -91,6 +91,29 @@
     color: var(--text-muted);
 }
 
+.empty-state {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 3rem;
+    text-align: center;
+}
+
+.empty-state h2 {
+    margin-top: 0;
+    color: var(--text-primary);
+}
+
+.empty-state p {
+    color: var(--text-muted);
+    margin: 1rem 0;
+}
+
+.empty-state pre {
+    text-align: left;
+    font-size: 0.9rem;
+    margin: 1.5rem 0;
+}
+
 .member-actions {
     display: flex;
     gap: 0.5rem;
