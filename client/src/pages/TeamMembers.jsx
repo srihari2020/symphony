@@ -176,8 +176,6 @@ function TeamMembers() {
         return <ListSkeleton count={5} />;
     }
 
-    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-    const userId = currentUser?._id || currentUser?.id;
     const currentMember = members.find(m => m.user._id === userId || m.user.id === userId);
     const canInvite = currentMember && ['owner', 'admin'].includes(currentMember.role);
 
