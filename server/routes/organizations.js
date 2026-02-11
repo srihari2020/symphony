@@ -67,4 +67,50 @@ router.put('/:id', authenticate, async (req, res) => {
     }
 });
 
+// Migration endpoint - create OrganizationMember for existing orgs
+router.post('/migrate-members', authenticate, async (req, res) => {
+    try {
+        const orgs = await Organization.find({});
+
+        for (const org of orgs) {
+            // Check if owner has a member record
+            const ownerMember = await OrganizationMember.findOne({
+                organization: org._id,
+                user: org.owner
+            });
+
+            if (!ownerMember) {
+                // Create owner member record
+                await OrganizationMember.create({
+                    organization: org._id,
+                    user: org.owner,
+                    role: 'owner'
+                });
+            }
+
+            // Create member records for other members
+            for (const memberId of org.members) {
+                if (memberId.toString() === org.owner.toString()) continue;
+
+                const existingMember = await OrganizationMember.findOne({
+                    organization: org._id,
+                    user: memberId
+                });
+
+                if (!existingMember) {
+                    await OrganizationMember.create({
+                        organization: org._id,
+                        user: memberId,
+                        role: 'member'
+                    });
+                }
+            }
+        }
+
+        res.json({ message: 'Migration complete', count: orgs.length });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 export default router;
