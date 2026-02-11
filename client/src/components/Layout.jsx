@@ -27,7 +27,7 @@ export default function Layout({ children }) {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.2 }}
                     >
-                        <Logo />
+                        <Logo variant="teal" />
                     </motion.div>
                 </div>
                 <motion.nav
