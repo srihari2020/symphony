@@ -5,7 +5,8 @@ export default function Spotlight({
     children,
     className = "",
     color = "rgba(99, 102, 241, 0.15)",
-    clickEffect = false
+    clickEffect = false,
+    ...props
 }) {
     const divRef = useRef(null);
     const [position, setPosition] = useState({ x: 0, y: 0 });
