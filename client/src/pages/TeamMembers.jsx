@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ListSkeleton } from '../components/LoadingSkeleton';
 import AnimatedButton from '../components/AnimatedButton';
 import Spotlight from '../components/Spotlight';
+import { useAuth } from '../context/AuthContext';
 import './TeamMembers.css';
 
 function TeamMembers() {
@@ -16,6 +17,8 @@ function TeamMembers() {
     const [inviteRole, setInviteRole] = useState('member');
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const userId = user?._id || user?.id;
 
     useEffect(() => {
         fetchData();
