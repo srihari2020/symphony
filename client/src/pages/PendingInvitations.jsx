@@ -75,7 +75,7 @@ function PendingInvitations() {
     };
 
     if (loading) {
-        return <Layout><ListSkeleton count={3} /></Layout>;
+        return <ListSkeleton count={3} />;
     }
 
     return (

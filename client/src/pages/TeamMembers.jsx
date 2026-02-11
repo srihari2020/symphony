@@ -169,7 +169,7 @@ function TeamMembers() {
     };
 
     if (loading) {
-        return <Layout><ListSkeleton count={5} /></Layout>;
+        return <ListSkeleton count={5} />;
     }
 
     const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
