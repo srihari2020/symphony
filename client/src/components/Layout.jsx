@@ -4,7 +4,10 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import Logo from './Logo';
 
-const SidebarItem = ({ to, icon, children }) => {
+import Link from 'react-router-dom';
+import { DashboardIcon, TeamIcon, SettingsIcon } from './SidebarIcons';
+
+const SidebarItem = ({ to, Icon, children }) => {
     return (
         <NavLink to={to} style={{ textDecoration: 'none' }}>
             {({ isActive }) => (
@@ -42,7 +45,9 @@ const SidebarItem = ({ to, icon, children }) => {
                             exit={{ opacity: 0 }}
                         />
                     )}
-                    <span style={{ fontSize: '1.25rem', zIndex: 1, filter: isActive ? 'drop-shadow(0 0 8px rgba(45, 212, 191, 0.5))' : 'none' }}>{icon}</span>
+                    <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1, filter: isActive ? 'drop-shadow(0 0 8px rgba(45, 212, 191, 0.5))' : 'none' }}>
+                        <Icon isActive={isActive} />
+                    </span>
                     <span style={{ zIndex: 1 }}>{children}</span>
                     {isActive && (
                         <motion.div
@@ -94,11 +99,11 @@ export default function Layout({ children }) {
                 <nav className="sidebar-nav">
                     <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                         {[
-                            { path: '/', icon: '📊', label: 'Dashboard' },
-                            { path: '/team', icon: '👥', label: 'Team' },
-                            { path: '/settings', icon: '⚙️', label: 'Settings' }
+                            { path: '/', Icon: DashboardIcon, label: 'Dashboard' },
+                            { path: '/team', Icon: TeamIcon, label: 'Team' },
+                            { path: '/settings', Icon: SettingsIcon, label: 'Settings' }
                         ].map((item) => (
-                            <SidebarItem key={item.path} to={item.path} icon={item.icon}>
+                            <SidebarItem key={item.path} to={item.path} Icon={item.Icon}>
                                 {item.label}
                             </SidebarItem>
                         ))}
