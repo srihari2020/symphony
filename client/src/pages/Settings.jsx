@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getIntegrations, getGitHubAuthUrl, getSlackAuthUrl, disconnectIntegration, getCurrentOrg } from '../api';
+import AnimatedButton from '../components/AnimatedButton';
+import Spotlight from '../components/Spotlight';
 
 export default function Settings() {
     const [integrations, setIntegrations] = useState([]);
@@ -86,7 +88,7 @@ export default function Settings() {
             <section className="settings-section">
                 <h2>Integrations</h2>
 
-                <div className="integration-card">
+                <Spotlight className="integration-card">
                     <div className="integration-info">
                         <div className="integration-icon github">
                             <svg viewBox="0 0 24 24" fill="currentColor">
@@ -101,17 +103,17 @@ export default function Settings() {
                         </div>
                     </div>
                     {hasGithub ? (
-                        <button className="btn btn-danger" onClick={() => handleDisconnect('github')}>
+                        <AnimatedButton variant="danger" onClick={() => handleDisconnect('github')}>
                             Disconnect
-                        </button>
+                        </AnimatedButton>
                     ) : (
-                        <button className="btn btn-primary" onClick={connectGitHub}>
+                        <AnimatedButton variant="primary" onClick={connectGitHub}>
                             Connect GitHub
-                        </button>
+                        </AnimatedButton>
                     )}
-                </div>
+                </Spotlight>
 
-                <div className="integration-card">
+                <Spotlight className="integration-card">
                     <div className="integration-info">
                         <div className="integration-icon slack">
                             <svg viewBox="0 0 24 24" fill="currentColor">
@@ -126,15 +128,15 @@ export default function Settings() {
                         </div>
                     </div>
                     {hasSlack ? (
-                        <button className="btn btn-danger" onClick={() => handleDisconnect('slack')}>
+                        <AnimatedButton variant="danger" onClick={() => handleDisconnect('slack')}>
                             Disconnect
-                        </button>
+                        </AnimatedButton>
                     ) : (
-                        <button className="btn btn-primary" onClick={connectSlack}>
+                        <AnimatedButton variant="primary" onClick={connectSlack}>
                             Connect Slack
-                        </button>
+                        </AnimatedButton>
                     )}
-                </div>
+                </Spotlight>
             </section>
         </div>
     );
