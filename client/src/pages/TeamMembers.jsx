@@ -265,11 +265,11 @@ function TeamMembers() {
                             }}
                         >
                             <div className="member-avatar">
-                                {getInitials(member.user.name)}
+                                {getInitials(member.user?.name || 'Unknown')}
                             </div>
                             <div className="member-info">
-                                <h3>{member.user.name}</h3>
-                                <p className="member-email">{member.user.email}</p>
+                                <h3>{member.user?.name || 'Unknown User'}</h3>
+                                <p className="member-email">{member.user?.email || 'No email'}</p>
                                 <span className={`role-badge ${getRoleBadgeClass(member.role)}`}>
                                     {member.role}
                                 </span>
@@ -279,12 +279,12 @@ function TeamMembers() {
                                     </p>
                                 )}
                             </div>
-                            {canInvite && member.role !== 'owner' && member.user._id !== userId && member.user.id !== userId && (
+                            {canInvite && member.role !== 'owner' && member.user?._id !== userId && member.user?.id !== userId && (
                                 <div className="member-actions">
                                     {currentMember.role === 'owner' && (
                                         <select
                                             value={member.role}
-                                            onChange={(e) => handleChangeRole(member.user._id, e.target.value)}
+                                            onChange={(e) => handleChangeRole(member.user?._id, e.target.value)}
                                             className="role-select"
                                         >
                                             <option value="admin">Admin</option>
@@ -293,7 +293,7 @@ function TeamMembers() {
                                     )}
                                     <button
                                         className="btn-danger-small"
-                                        onClick={() => handleRemoveMember(member.user._id)}
+                                        onClick={() => handleRemoveMember(member.user?._id)}
                                     >
                                         Remove
                                     </button>

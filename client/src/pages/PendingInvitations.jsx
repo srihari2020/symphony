@@ -144,15 +144,15 @@ function PendingInvitations() {
                                 }}
                             >
                                 <div className="invitation-info">
-                                    <h3>{invitation.organization.name}</h3>
+                                    <h3>{invitation.organization?.name || 'Unknown Organization'}</h3>
                                     <p className="invitation-details">
-                                        Invited by {invitation.invitedBy.name} ({invitation.invitedBy.email})
+                                        Invited by {invitation.invitedBy?.name || 'Unknown'} ({invitation.invitedBy?.email || 'No email'})
                                     </p>
                                     <span className={`role-badge role-badge-${invitation.role}`}>
                                         {invitation.role}
                                     </span>
                                     <p className="invitation-date">
-                                        Expires on {new Date(invitation.expiresAt).toLocaleDateString()}
+                                        Expires on {invitation.expiresAt ? new Date(invitation.expiresAt).toLocaleDateString() : 'Unknown date'}
                                     </p>
                                 </div>
                                 <div className="invitation-actions">
