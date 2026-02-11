@@ -1,3 +1,7 @@
+import React from 'react';
+import { useNavigate, NavLink } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
 import Logo from './Logo';
 
 export default function Layout({ children }) {
