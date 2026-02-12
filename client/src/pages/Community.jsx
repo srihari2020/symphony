@@ -91,14 +91,31 @@ const Community = () => {
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
     const fetchPosts = async () => {
+        if (!token) return; // Wait for token
         try {
             const res = await fetch(`${API_URL}/posts`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
+
+            if (!res.ok) {
+                if (res.status === 401) {
+                    console.error('Unauthorized Access');
+                    // distinct handle?
+                }
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+
             const data = await res.json();
-            setPosts(data);
+
+            if (Array.isArray(data)) {
+                setPosts(data);
+            } else {
+                console.error('API response is not an array:', data);
+                setPosts([]);
+            }
         } catch (err) {
             console.error('Error fetching posts:', err);
+            setPosts([]);
         } finally {
             setLoading(false);
         }
