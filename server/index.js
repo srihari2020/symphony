@@ -52,6 +52,10 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/posts', postRoutes);
 
+app.get('/', (req, res) => {
+    res.json({ message: 'Symphony API is running', status: 'ok' });
+});
+
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
