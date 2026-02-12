@@ -82,7 +82,7 @@ const PostCard = ({ post, onLike }) => {
 };
 
 const Community = () => {
-    const { token } = useAuth();
+    const { token, loading: authLoading } = useAuth();
     const [posts, setPosts] = useState([]);
     const [newPost, setNewPost] = useState('');
     const [filter, setFilter] = useState('all');
@@ -91,7 +91,7 @@ const Community = () => {
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
     const fetchPosts = async () => {
-        if (!token) return; // Wait for token
+        if (!token) return;
         try {
             const res = await fetch(`${API_URL}/posts`, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -100,7 +100,6 @@ const Community = () => {
             if (!res.ok) {
                 if (res.status === 401) {
                     console.error('Unauthorized Access');
-                    // distinct handle?
                 }
                 throw new Error(`HTTP error! status: ${res.status}`);
             }
@@ -122,8 +121,14 @@ const Community = () => {
     };
 
     useEffect(() => {
-        fetchPosts();
-    }, [token]);
+        if (!authLoading) {
+            if (token) {
+                fetchPosts();
+            } else {
+                setLoading(false); // Stop loading if not logged in
+            }
+        }
+    }, [token, authLoading]);
 
     const handleCreatePost = async (e) => {
         e.preventDefault();
