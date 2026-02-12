@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import KanbanCard from './KanbanCard';
 
-const KanbanColumn = ({ title, status, tasks, onDragStart, onDrop, onEdit, onDelete }) => {
+const KanbanColumn = ({ title, status, tasks, onDragStart, onDrop, onEdit, onDelete, onMove }) => {
     const columnColors = {
         'todo': '#6366f1',
         'in-progress': '#f59e0b',
@@ -70,6 +70,7 @@ const KanbanColumn = ({ title, status, tasks, onDragStart, onDrop, onEdit, onDel
                         onDragStart={onDragStart}
                         onEdit={onEdit}
                         onDelete={onDelete}
+                        onMove={onMove}
                     />
                 ))}
             </motion.div>

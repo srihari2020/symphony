@@ -153,6 +153,40 @@ const KanbanBoard = ({ projectId }) => {
         }
     };
 
+    const handleMoveTask = async (task, direction) => {
+        const statusOrder = ['todo', 'in-progress', 'done'];
+        const currentIndex = statusOrder.indexOf(task.status);
+        let newStatus;
+
+        if (direction === 'next' && currentIndex < statusOrder.length - 1) {
+            newStatus = statusOrder[currentIndex + 1];
+        } else if (direction === 'prev' && currentIndex > 0) {
+            newStatus = statusOrder[currentIndex - 1];
+        } else {
+            return;
+        }
+
+        // Optimistic Update
+        const updatedTasks = tasks.map(t =>
+            t._id === task._id ? { ...t, status: newStatus } : t
+        );
+        setTasks(updatedTasks);
+
+        try {
+            await fetch(`${import.meta.env.VITE_API_URL}/tasks/${task._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+        } catch (err) {
+            console.error('Error moving task:', err);
+            fetchTasks(); // Revert
+        }
+    };
+
     const handleEditTask = (task) => {
         setEditingTask(task);
         setNewTaskTitle(task.title);
@@ -238,6 +272,7 @@ const KanbanBoard = ({ projectId }) => {
                         onDrop={handleDrop}
                         onEdit={handleEditTask}
                         onDelete={handleDeleteTask}
+                        onMove={handleMoveTask}
                     />
                 ))}
             </div>

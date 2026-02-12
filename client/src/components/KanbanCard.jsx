@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const KanbanCard = ({ task, index, onDragStart, onEdit, onDelete }) => {
+const KanbanCard = ({ task, index, onDragStart, onEdit, onDelete, onMove }) => {
     const priorityColors = {
         low: '#22c55e',
         medium: '#f59e0b',
@@ -50,7 +50,32 @@ const KanbanCard = ({ task, index, onDragStart, onEdit, onDelete }) => {
                         {task.priority}
                     </span>
                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        {/* Action Buttons */}
+                        {/* Mobile/Quick Move Actions */}
+                        {task.status !== 'todo' && (
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onMove(task, 'prev'); }}
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a0a0b0', padding: 0 }}
+                                title="Move Previous"
+                            >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="15 18 9 12 15 6"></polyline>
+                                </svg>
+                            </button>
+                        )}
+                        {task.status !== 'done' && (
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onMove(task, 'next'); }}
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a0a0b0', padding: 0 }}
+                                title="Move Next"
+                            >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                            </button>
+                        )}
+                        <div style={{ width: '1px', height: '12px', background: 'rgba(255,255,255,0.1)', margin: '0 2px' }}></div>
+
+                        {/* Edit/Delete Actions */}
                         <button
                             onClick={(e) => { e.stopPropagation(); onEdit(task); }}
                             style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#a0a0b0', padding: 0 }}

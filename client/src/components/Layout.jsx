@@ -248,7 +248,7 @@ export default function Layout({ children }) {
                                     inset: 0,
                                     background: 'rgba(0,0,0,0.6)',
                                     backdropFilter: 'blur(5px)',
-                                    zIndex: 90
+                                    zIndex: 95 // Ensure overlay is below sidebar (which is 100 in style or default)
                                 }}
                             />
                         )}
@@ -261,6 +261,9 @@ export default function Layout({ children }) {
                             }}
                             exit={isMobile ? { x: -280 } : undefined}
                             transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                            style={{
+                                zIndex: 100 // Explicitly higher than overlay
+                            }}
                         >
                             {sidebarContent}
                         </motion.aside>
