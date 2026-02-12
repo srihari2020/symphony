@@ -215,9 +215,6 @@ const Community = () => {
     const filteredPosts = filter === 'all' ? posts : posts.filter(p => p.type === filter);
 
     return (
-    // ... (rest of component logic remains)
-
-    return (
         <div className="community-page" style={{ maxWidth: '800px', margin: '0 auto', color: '#fff' }}>
             <div className="page-header" style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
@@ -341,7 +338,6 @@ const Community = () => {
                 </div>
             )}
         </div>
-    );
     );
 };
 
