@@ -85,7 +85,7 @@ export default function Dashboard() {
             transition={{ duration: 0.3 }}
         >
             <header className="page-header">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div className="dashboard-header-left">
                     <Logo size="small" variant="primary" showText={false} />
                     <motion.h1
                         initial={{ opacity: 0, y: -20 }}
@@ -95,9 +95,11 @@ export default function Dashboard() {
                         Projects
                     </motion.h1>
                 </div>
-                <AnimatedButton variant="primary" onClick={() => setShowModal(true)}>
-                    + New Project
-                </AnimatedButton>
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+                    <AnimatedButton variant="primary" onClick={() => setShowModal(true)}>
+                        + New Project
+                    </AnimatedButton>
+                </div>
             </header>
 
             {(!hasGithub || !hasSlack) && (

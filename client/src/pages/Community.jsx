@@ -89,7 +89,7 @@ const PostCard = ({ post, onLike }) => {
                 </div>
             )}
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '1rem', flexWrap: 'wrap' }}>
                 <button
                     onClick={() => !isExternal && onLike(post._id)}
                     style={{

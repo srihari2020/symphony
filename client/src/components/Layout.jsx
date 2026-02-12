@@ -246,8 +246,8 @@ export default function Layout({ children }) {
                                 style={{
                                     position: 'fixed',
                                     inset: 0,
-                                    background: 'rgba(0,0,0,0.5)',
-                                    backdropFilter: 'blur(2px)',
+                                    background: 'rgba(0,0,0,0.6)',
+                                    backdropFilter: 'blur(5px)',
                                     zIndex: 90
                                 }}
                             />
@@ -255,15 +255,12 @@ export default function Layout({ children }) {
                         <motion.aside
                             className="sidebar"
                             initial={isMobile ? { x: -280 } : { x: 0 }}
-                            animate={{ x: 0 }}
-                            exit={isMobile ? { x: -280 } : undefined}
-                            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                            style={{
-                                zIndex: 100,
-                                position: 'fixed',
-                                height: '100%',
-                                boxShadow: isMobile ? '0 0 40px rgba(0,0,0,0.5)' : 'none'
+                            animate={{
+                                x: 0,
+                                boxShadow: isMobile ? '5px 0 25px rgba(0,0,0,0.5)' : 'none'
                             }}
+                            exit={isMobile ? { x: -280 } : undefined}
+                            transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                         >
                             {sidebarContent}
                         </motion.aside>

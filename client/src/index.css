@@ -196,6 +196,12 @@ body {
     font-weight: 600;
 }
 
+.dashboard-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
 .breadcrumb {
     display: flex;
     align-items: center;
