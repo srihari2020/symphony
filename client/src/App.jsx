@@ -1,6 +1,39 @@
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
+import Layout from './components/Layout';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Dashboard from './pages/Dashboard';
+import ProjectDetail from './pages/ProjectDetail';
+import Settings from './pages/Settings';
+import TeamMembers from './pages/TeamMembers';
+import PendingInvitations from './pages/PendingInvitations';
+import Community from './pages/Community';
+import GitHubCallback from './pages/GitHubCallback';
+import SlackCallback from './pages/SlackCallback';
+import GitHubAuthCallback from './pages/GitHubAuthCallback';
+import './index.css';
 
-// ...
+function PrivateRoute({ children }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  return user ? children : <Navigate to="/login" />;
+}
+
+function PublicRoute({ children }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  return user ? <Navigate to="/" /> : children;
+}
 
 function App() {
   return (
