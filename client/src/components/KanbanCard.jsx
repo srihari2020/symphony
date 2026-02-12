@@ -19,7 +19,7 @@ const KanbanCard = ({ task, index, onDragStart, onEdit, onDelete }) => {
             dragElastic={0.1}
             dragMomentum={false}
             onDragStart={() => onDragStart(task, index)}
-            whileDrag={{ scale: 1.05, zIndex: 100, cursor: 'grabbing', boxShadow: '0 8px 20px rgba(0,0,0,0.5)' }}
+            whileDrag={{ scale: 1.05, zIndex: 100, cursor: 'grabbing', boxShadow: '0 8px 20px rgba(0,0,0,0.5)', pointerEvents: 'none' }}
             whileHover={{ scale: 1.02, cursor: 'grab', backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
             className="kanban-card group"
             style={{
