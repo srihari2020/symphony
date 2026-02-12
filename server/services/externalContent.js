@@ -33,7 +33,29 @@ export const fetchDevToPosts = async (tag = 'career') => {
         }));
     } catch (error) {
         console.error('External API Error:', error);
-        return [];
+        // Fallback to Mock Data to verify Backend->Frontend connection
+        return [
+            {
+                _id: 'mock-1',
+                author: { name: 'System Bot', avatar: '' },
+                content: 'This is a test post to verify the Server connection. If you see this, your App is working! 🚀',
+                type: 'general',
+                likes: [],
+                comments: [],
+                createdAt: new Date(),
+                source: 'System'
+            },
+            {
+                _id: 'mock-2',
+                author: { name: 'Debugger', avatar: '' },
+                content: 'Dev.to integration seems to be having trouble, but the Symphony Backend is online.',
+                type: 'career',
+                likes: [],
+                comments: [],
+                createdAt: new Date(Date.now() - 86400000),
+                source: 'System'
+            }
+        ];
     }
 };
 
