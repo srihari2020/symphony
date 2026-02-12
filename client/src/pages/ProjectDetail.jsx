@@ -5,6 +5,7 @@ import { getProject, getProjectDashboard, refreshProject } from '../api';
 import { ListSkeleton } from '../components/LoadingSkeleton';
 import AnimatedButton from '../components/AnimatedButton';
 import Spotlight from '../components/Spotlight';
+import KanbanBoard from '../components/KanbanBoard';
 
 export default function ProjectDetail() {
     const { id } = useParams();
@@ -12,7 +13,7 @@ export default function ProjectDetail() {
     const [dashboard, setDashboard] = useState({ pullRequests: [], commits: [], slackMessages: [] });
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
-    const [activeTab, setActiveTab] = useState('prs');
+    const [activeTab, setActiveTab] = useState('board'); // Default to board for visibility
 
     useEffect(() => {
         loadData();
@@ -101,16 +102,18 @@ export default function ProjectDetail() {
             )}
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 {label}
-                <span style={{
-                    background: activeTab === id ? '#2dd4bf' : 'rgba(255,255,255,0.1)',
-                    color: activeTab === id ? '#0f0f14' : '#a0a0b0',
-                    padding: '1px 6px',
-                    borderRadius: '10px',
-                    fontSize: '0.75rem',
-                    fontWeight: 600
-                }}>
-                    {count}
-                </span>
+                {count !== undefined && (
+                    <span style={{
+                        background: activeTab === id ? '#2dd4bf' : 'rgba(255,255,255,0.1)',
+                        color: activeTab === id ? '#0f0f14' : '#a0a0b0',
+                        padding: '1px 6px',
+                        borderRadius: '10px',
+                        fontSize: '0.75rem',
+                        fontWeight: 600
+                    }}>
+                        {count}
+                    </span>
+                )}
             </span>
         </button>
     );
@@ -158,6 +161,7 @@ export default function ProjectDetail() {
                 width: 'fit-content',
                 border: '1px solid rgba(255,255,255,0.05)'
             }}>
+                <TabButton id="board" label="Board" />
                 <TabButton id="prs" label="Pull Requests" count={dashboard.pullRequests.length} />
                 <TabButton id="commits" label="Commits" count={dashboard.commits.length} />
                 <TabButton id="slack" label="Slack" count={dashboard.slackMessages.length} />
@@ -165,6 +169,18 @@ export default function ProjectDetail() {
 
             <div className="tab-content" style={{ minHeight: '400px' }}>
                 <AnimatePresence mode="wait">
+                    {activeTab === 'board' && (
+                        <motion.div
+                            key="board"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <KanbanBoard projectId={id} />
+                        </motion.div>
+                    )}
+
                     {activeTab === 'prs' && (
                         <motion.div
                             key="prs"
@@ -339,7 +355,7 @@ export default function ProjectDetail() {
                 </AnimatePresence>
             </div>
 
-            {dashboard.lastUpdated && (
+            {dashboard.lastUpdated && activeTab !== 'board' && (
                 <div className="last-updated" style={{ marginTop: '2rem', textAlign: 'center', color: '#6b6b7b', fontSize: '0.85rem' }}>
                     Last refreshed: {dashboard.lastUpdated.prs && formatDate(dashboard.lastUpdated.prs)}
                 </div>

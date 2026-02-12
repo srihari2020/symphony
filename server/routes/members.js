@@ -4,6 +4,7 @@ import Invitation from '../models/Invitation.js';
 import Organization from '../models/Organization.js';
 import User from '../models/User.js';
 import { authenticate } from '../middleware/auth.js';
+import { sendInvitationEmail } from '../services/emailService.js';
 
 const router = express.Router();
 
@@ -97,6 +98,30 @@ router.post('/:orgId/members/invite', authenticate, checkOrgMembership, requireA
         // Populate organization for response
         await invitation.populate('organization', 'name');
         await invitation.populate('invitedBy', 'name email');
+
+        // Send Email Notification
+        try {
+            await sendInvitationEmail({
+                email: invitation.email,
+                organizationName: invitation.organization.name,
+                invitedBy: req.user.name,
+                token: invitation.token,
+                role: invitation.role
+            });
+
+            // Send Real-time Notification if user exists
+            const invitedUser = await User.findOne({ email: invitation.email });
+            if (invitedUser) {
+                await sendNotification(invitedUser._id, 'invite', {
+                    message: `${req.user.name} invited you to join ${invitation.organization.name}`,
+                    link: `/accept-invite/${invitation.token}`,
+                    organizationId: invitation.organization._id
+                });
+            }
+        } catch (emailErr) {
+            console.error('Failed to send invitation email:', emailErr);
+            // Don't fail the request if email fails, but log it
+        }
 
         res.status(201).json(invitation);
     } catch (error) {

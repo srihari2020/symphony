@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { createServer } from 'http'; // Moved to top
 
 import authRoutes from './routes/auth.js';
 import orgRoutes from './routes/organizations.js';
@@ -10,7 +11,11 @@ import projectRoutes from './routes/projects.js';
 import integrationRoutes from './routes/integrations.js';
 import memberRoutes from './routes/members.js';
 import invitationRoutes from './routes/invitations.js';
+import taskRoutes from './routes/taskRoutes.js';
+import notificationRoutes from './routes/notifications.js'; // Moved to top
+import postRoutes from './routes/posts.js'; // Moved to top
 import { startScheduler } from './services/scheduler.js';
+import { initSocket } from './services/socketService.js'; // Moved to top
 
 dotenv.config();
 
@@ -43,10 +48,19 @@ app.use('/api/organizations', memberRoutes); // Member routes use org prefix
 app.use('/api/projects', projectRoutes);
 app.use('/api/integrations', integrationRoutes);
 app.use('/api/invitations', invitationRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/posts', postRoutes);
 
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+// Create HTTP Server
+const httpServer = createServer(app);
+
+// Initialize Socket.io
+initSocket(httpServer);
 
 // Connect to MongoDB and start server
 async function startServer() {
@@ -100,7 +114,7 @@ async function startServer() {
         }
     }
 
-    app.listen(PORT, '0.0.0.0', () => {
+    httpServer.listen(PORT, '0.0.0.0', () => {
         console.log(`Server running on port ${PORT}`);
         // Start scheduler after server is listening
         try {

@@ -795,9 +795,129 @@ body {
     color: white;
 }
 
-.integration-icon.slack {
-    background: #4a154b;
-    color: white;
+/* Responsive Design */
+@media (max-width: 768px) {
+
+    /* Layout */
+    .app-layout {
+        flex-direction: column;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        /* Override inline style if needed, though Layout handles it */
+        padding: 1rem;
+        width: 100%;
+        min-height: calc(100vh - 60px);
+    }
+
+    /* Grids */
+    .project-grid {
+        grid-template-columns: 1fr;
+        /* Single column on mobile */
+    }
+
+    .integration-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .integration-info {
+        width: 100%;
+    }
+
+    .settings-card .integration-card .btn {
+        width: 100%;
+    }
+
+    /* Kanban Board */
+    .kanban-board {
+        margin-top: 0.5rem;
+    }
+
+    .kanban-board>div:last-child {
+        /* The container for columns */
+        display: flex !important;
+        /* Override grid */
+        overflow-x: auto;
+        padding-bottom: 1rem;
+        scroll-snap-type: x mandatory;
+        gap: 1rem !important;
+    }
+
+    .kanban-column {
+        min-width: 85vw;
+        /* Almost full width with peek */
+        scroll-snap-align: center;
+    }
+
+    /* Tabs */
+    .tabs {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 0.5rem;
+        /* Space for scrollbar if visible */
+    }
+
+    .tab {
+        flex: 0 0 auto;
+        /* Don't shrink */
+    }
+
+    /* Project Detail */
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .page-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .page-header .btn {
+        width: 100%;
+    }
+
+    /* Breadcrumbs */
+    .breadcrumb {
+        flex-wrap: wrap;
+    }
+
+    /* Modals */
+    .modal {
+        max-width: 95%;
+        padding: 1.5rem;
+    }
+
+    .modal-actions {
+        flex-direction: column-reverse;
+        /* Put primary action on top/bottom visually? Or just stack */
+    }
+
+    .modal-actions .btn {
+        width: 100%;
+    }
+
+    /* Data Lists */
+    .list-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .list-item>div:last-child {
+        /* Status badge usually */
+        align-self: flex-start;
+    }
+
+    /* Slack Item specific */
+    .slack-item {
+        flex-direction: row;
+        /* Keep avatar next to content */
+    }
+}
 }
 
 .integration-name {

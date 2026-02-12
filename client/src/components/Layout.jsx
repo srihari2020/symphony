@@ -1,19 +1,17 @@
-import React from 'react';
-import { useNavigate, NavLink } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, NavLink, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import Logo from './Logo';
 
-import Link from 'react-router-dom';
-import { DashboardIcon, TeamIcon, SettingsIcon } from './SidebarIcons';
+import { DashboardIcon, TeamIcon, SettingsIcon, CommunityIcon } from './SidebarIcons';
 import Magnetic from './Magnetic';
 
-const SidebarItem = ({ to, Icon, children }) => {
+const SidebarItem = ({ to, Icon, children, onClick }) => {
     return (
-        <NavLink to={to} style={{ textDecoration: 'none' }}>
+        <NavLink to={to} style={{ textDecoration: 'none' }} onClick={onClick}>
             {({ isActive }) => (
                 <motion.li
-                    // ... existing styles ...
                     style={{
                         position: 'relative',
                         display: 'flex',
@@ -56,7 +54,6 @@ const SidebarItem = ({ to, Icon, children }) => {
                     {isActive && (
                         <motion.div
                             layoutId="active-nav-indicator"
-                            // ... existing styles ...
                             style={{
                                 position: 'absolute',
                                 left: 0,
@@ -75,70 +72,236 @@ const SidebarItem = ({ to, Icon, children }) => {
     );
 };
 
+const MenuToggle = ({ toggle, isOpen }) => (
+    <button onClick={toggle} style={{
+        background: 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        padding: '0.5rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#fff',
+        zIndex: 100
+    }}>
+        <svg width="24" height="24" viewBox="0 0 24 24">
+            <motion.path
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                variants={{
+                    closed: { d: "M4 6L20 6" },
+                    open: { d: "M6 18L18 6" }
+                }}
+                initial="closed"
+                animate={isOpen ? "open" : "closed"}
+            />
+            <motion.path
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                d="M4 12L20 12"
+                variants={{
+                    closed: { opacity: 1 },
+                    open: { opacity: 0 }
+                }}
+                initial="closed"
+                animate={isOpen ? "open" : "closed"}
+            />
+            <motion.path
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                variants={{
+                    closed: { d: "M4 18L20 18" },
+                    open: { d: "M6 6L18 18" }
+                }}
+                initial="closed"
+                animate={isOpen ? "open" : "closed"}
+            />
+        </svg>
+    </button>
+);
+
 export default function Layout({ children }) {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const [isMobile, setIsMobile] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+            if (window.innerWidth >= 768) {
+                setIsSidebarOpen(true);
+            } else {
+                setIsSidebarOpen(false);
+            }
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    // Close sidebar on route change for mobile
+    useEffect(() => {
+        if (isMobile) {
+            setIsSidebarOpen(false);
+        }
+    }, [location, isMobile]);
 
     const handleLogout = () => {
         logout();
         navigate('/login');
     };
 
+    const sidebarContent = (
+        <>
+            <div className="sidebar-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2 }}
+                >
+                    <Logo variant="teal" />
+                </motion.div>
+                {isMobile && (
+                    <MenuToggle toggle={() => setIsSidebarOpen(false)} isOpen={true} />
+                )}
+            </div>
+            <nav className="sidebar-nav">
+                <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {[
+                        { path: '/', Icon: DashboardIcon, label: 'Dashboard' },
+                        { path: '/community', Icon: CommunityIcon, label: 'Community' },
+                        { path: '/community', Icon: CommunityIcon, label: 'Community' },
+                        { path: '/team', Icon: TeamIcon, label: 'Team' },
+                        { path: '/settings', Icon: SettingsIcon, label: 'Settings' }
+                    ].map((item) => (
+                        <SidebarItem key={item.path} to={item.path} Icon={item.Icon} onClick={() => isMobile && setIsSidebarOpen(false)}>
+                            {item.label}
+                        </SidebarItem>
+                    ))}
+                </ul>
+            </nav>
+            <motion.div
+                className="sidebar-footer"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+            >
+                <div className="user-info">
+                    <motion.span
+                        className="user-avatar"
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                    >
+                        {user?.name?.[0] || 'U'}
+                    </motion.span>
+                    <span className="user-name">{user?.name || 'User'}</span>
+                </div>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <button onClick={handleLogout} className="logout-btn">Logout</button>
+                </motion.div>
+            </motion.div>
+        </>
+    );
+
     return (
         <div className="app-layout">
-            <motion.aside
-                className="sidebar"
-                initial={{ x: -280 }}
-                animate={{ x: 0 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            >
-                <div className="sidebar-header">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.2 }}
-                    >
-                        <Logo variant="teal" />
-                    </motion.div>
-                </div>
-                <nav className="sidebar-nav">
-                    <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        {[
-                            { path: '/', Icon: DashboardIcon, label: 'Dashboard' },
-                            { path: '/team', Icon: TeamIcon, label: 'Team' },
-                            { path: '/settings', Icon: SettingsIcon, label: 'Settings' }
-                        ].map((item) => (
-                            <SidebarItem key={item.path} to={item.path} Icon={item.Icon}>
-                                {item.label}
-                            </SidebarItem>
-                        ))}
-                    </ul>
-                </nav>
-                <motion.div
-                    className="sidebar-footer"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                >
-                    <div className="user-info">
-                        <motion.span
-                            className="user-avatar"
-                            whileHover={{ scale: 1.1, rotate: 5 }}
-                        >
-                            {user?.name?.[0] || 'U'}
-                        </motion.span>
-                        <span className="user-name">{user?.name || 'User'}</span>
+            import NotificationBell from './NotificationBell';
+
+            // ... (inside Layout component, adding to sidebar header or creating a top bar if preferred)
+            // For now, let's add it to the user profile area or check if there's a better spot.
+            // Actually, Layout has "sidebar" and "main-content".
+            // The mobile header has a logo and menu toggle.
+            // Let's add the bell to the mobile header and maybe a top bar for desktop?
+            // Or just put it in the sidebar for now? Navigation items might be too crowded.
+            // Let's create a Desktop Header for the main content area, user seems to have only Sidebar.
+
+            // Let's add it to the Sidebar User Area for desktop, and Mobile Header for mobile.
+
+            // ... inside Layout render:
+
+            {/* Mobile Header */}
+            {isMobile && (
+                <header style={{
+                    // ... existing styles ...
+                }}>
+                    <Logo variant="teal" size="small" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <NotificationBell />
+                        <MenuToggle toggle={() => setIsSidebarOpen(!isSidebarOpen)} isOpen={isSidebarOpen} />
                     </div>
-                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                        <button onClick={handleLogout} className="logout-btn">Logout</button>
-                    </motion.div>
-                </motion.div>
-            </motion.aside>
+                </header>
+            )}
+
+// ...
+
+            <motion.div
+                className="sidebar-footer"
+            // ...
+            >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: '1rem' }}>
+                    <div className="user-info">
+                        {/* ... user avatar ... */}
+                    </div>
+                    {/* Add Bell here for Desktop */}
+                    {!isMobile && <NotificationBell />}
+                </div>
+                {/* ... logout button ... */}
+            </motion.div>
+
+            {/* Sidebar */}
+            <AnimatePresence>
+                {(isSidebarOpen || !isMobile) && (
+                    <>
+                        {isMobile && isSidebarOpen && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setIsSidebarOpen(false)}
+                                style={{
+                                    position: 'fixed',
+                                    inset: 0,
+                                    background: 'rgba(0,0,0,0.5)',
+                                    backdropFilter: 'blur(2px)',
+                                    zIndex: 90
+                                }}
+                            />
+                        )}
+                        <motion.aside
+                            className="sidebar"
+                            initial={isMobile ? { x: -280 } : { x: 0 }}
+                            animate={{ x: 0 }}
+                            exit={isMobile ? { x: -280 } : undefined}
+                            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                            style={{
+                                zIndex: 100,
+                                position: 'fixed',
+                                height: '100%',
+                                boxShadow: isMobile ? '0 0 40px rgba(0,0,0,0.5)' : 'none'
+                            }}
+                        >
+                            {sidebarContent}
+                        </motion.aside>
+                    </>
+                )}
+            </AnimatePresence>
+
             <motion.main
                 className="main-content"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
+                style={{
+                    marginLeft: isMobile ? 0 : '280px',
+                    paddingTop: isMobile ? '80px' : '2rem',
+                    width: '100%'
+                }}
             >
                 {children}
             </motion.main>
