@@ -145,7 +145,8 @@ const Community = () => {
         setError(null);
         try {
             const res = await fetch(`${API_URL}/posts`, {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${token}` },
+                cache: 'no-store'
             });
 
             if (!res.ok) {
