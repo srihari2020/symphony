@@ -6,6 +6,7 @@ import Logo from './Logo';
 
 import { DashboardIcon, TeamIcon, SettingsIcon, CommunityIcon } from './SidebarIcons';
 import Magnetic from './Magnetic';
+import NotificationBell from './NotificationBell';
 
 const SidebarItem = ({ to, Icon, children, onClick }) => {
     return (
@@ -177,7 +178,6 @@ export default function Layout({ children }) {
                     {[
                         { path: '/', Icon: DashboardIcon, label: 'Dashboard' },
                         { path: '/community', Icon: CommunityIcon, label: 'Community' },
-                        { path: '/community', Icon: CommunityIcon, label: 'Community' },
                         { path: '/team', Icon: TeamIcon, label: 'Team' },
                         { path: '/settings', Icon: SettingsIcon, label: 'Settings' }
                     ].map((item) => (
@@ -211,24 +211,20 @@ export default function Layout({ children }) {
 
     return (
         <div className="app-layout">
-            import NotificationBell from './NotificationBell';
-
-            // ... (inside Layout component, adding to sidebar header or creating a top bar if preferred)
-            // For now, let's add it to the user profile area or check if there's a better spot.
-            // Actually, Layout has "sidebar" and "main-content".
-            // The mobile header has a logo and menu toggle.
-            // Let's add the bell to the mobile header and maybe a top bar for desktop?
-            // Or just put it in the sidebar for now? Navigation items might be too crowded.
-            // Let's create a Desktop Header for the main content area, user seems to have only Sidebar.
-
-            // Let's add it to the Sidebar User Area for desktop, and Mobile Header for mobile.
-
-            // ... inside Layout render:
-
-            {/* Mobile Header */}
             {isMobile && (
                 <header style={{
-                    // ... existing styles ...
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: '64px',
+                    background: '#1a1b23',
+                    borderBottom: '1px solid rgba(255,255,255,0.05)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '0 1rem',
+                    zIndex: 90
                 }}>
                     <Logo variant="teal" size="small" />
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -238,23 +234,6 @@ export default function Layout({ children }) {
                 </header>
             )}
 
-// ...
-
-            <motion.div
-                className="sidebar-footer"
-            // ...
-            >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: '1rem' }}>
-                    <div className="user-info">
-                        {/* ... user avatar ... */}
-                    </div>
-                    {/* Add Bell here for Desktop */}
-                    {!isMobile && <NotificationBell />}
-                </div>
-                {/* ... logout button ... */}
-            </motion.div>
-
-            {/* Sidebar */}
             <AnimatePresence>
                 {(isSidebarOpen || !isMobile) && (
                     <>
