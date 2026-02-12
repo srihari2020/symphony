@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import Spotlight from './Spotlight';
+
 
 const KanbanCard = ({ task, index, onDragStart, onEdit, onDelete }) => {
     const priorityColors = {
