@@ -108,6 +108,77 @@ const KanbanBoard = ({ projectId }) => {
         setDraggedOverColumn(null);
     };
 
+    // State for editing
+    const [editingTask, setEditingTask] = useState(null);
+
+    // ... (existing code) ...
+
+    const handleDeleteTask = async (taskId) => {
+        if (!window.confirm('Are you sure you want to delete this task?')) return;
+
+        // Optimistic update
+        const previousTasks = [...tasks];
+        setTasks(tasks.filter(t => t._id !== taskId));
+
+        try {
+            await fetch(`${import.meta.env.VITE_API_URL}/tasks/${taskId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+        } catch (err) {
+            console.error('Error deleting task:', err);
+            setTasks(previousTasks); // Revert
+        }
+    };
+
+    const handleEditTask = (task) => {
+        setEditingTask(task);
+        setNewTaskTitle(task.title);
+        setNewTaskDesc(task.description || '');
+        setNewTaskPriority(task.priority);
+        setShowTaskModal(true);
+    };
+
+    const handleSaveTask = async (e) => {
+        e.preventDefault();
+
+        if (editingTask) {
+            // Update existing task
+            try {
+                const res = await fetch(`${import.meta.env.VITE_API_URL}/tasks/${editingTask._id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        title: newTaskTitle,
+                        description: newTaskDesc,
+                        priority: newTaskPriority
+                    })
+                });
+                const updatedTask = await res.json();
+                if (res.ok) {
+                    setTasks(tasks.map(t => t._id === editingTask._id ? updatedTask : t));
+                    closeModal();
+                }
+            } catch (err) {
+                console.error('Error updating task:', err);
+            }
+        } else {
+            // Create new task (existing logic)
+            handleCreateTask(e);
+        }
+    };
+
+    const closeModal = () => {
+        setShowTaskModal(false);
+        setEditingTask(null);
+        setNewTaskTitle('');
+        setNewTaskDesc('');
+        setNewTaskPriority('medium');
+    };
+
     // Columns config
     const columns = [
         { id: 'todo', title: 'To Do' },
@@ -120,7 +191,7 @@ const KanbanBoard = ({ projectId }) => {
     return (
         <div className="kanban-board" style={{ marginTop: '1rem', position: 'relative' }}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
-                <AnimatedButton variant="primary" onClick={() => setShowTaskModal(true)}>
+                <AnimatedButton variant="primary" onClick={() => { setEditingTask(null); setShowTaskModal(true); }}>
                     + New Task
                 </AnimatedButton>
             </div>
@@ -132,7 +203,7 @@ const KanbanBoard = ({ projectId }) => {
                     gap: '1.5rem',
                     alignItems: 'start'
                 }}
-                onMouseUp={handleDragEnd} // Global drop handler
+                onMouseUp={handleDragEnd}
                 onTouchEnd={handleDragEnd}
             >
                 {columns.map(col => (
@@ -143,6 +214,8 @@ const KanbanBoard = ({ projectId }) => {
                         tasks={tasks.filter(t => t.status === col.id)}
                         onDragStart={handleDragStart}
                         onDrop={handleDrop}
+                        onEdit={handleEditTask}
+                        onDelete={handleDeleteTask}
                     />
                 ))}
             </div>
@@ -158,7 +231,7 @@ const KanbanBoard = ({ projectId }) => {
                     justifyContent: 'center',
                     zIndex: 1000,
                     backdropFilter: 'blur(5px)'
-                }} onClick={() => setShowTaskModal(false)}>
+                }} onClick={closeModal}>
                     <motion.div
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
@@ -172,8 +245,10 @@ const KanbanBoard = ({ projectId }) => {
                         }}
                         onClick={e => e.stopPropagation()}
                     >
-                        <h2 style={{ color: '#fff', margin: '0 0 1.5rem 0' }}>Create New Task</h2>
-                        <form onSubmit={handleCreateTask}>
+                        <h2 style={{ color: '#fff', margin: '0 0 1.5rem 0' }}>
+                            {editingTask ? 'Edit Task' : 'Create New Task'}
+                        </h2>
+                        <form onSubmit={handleSaveTask}>
                             <div style={{ marginBottom: '1rem' }}>
                                 <label style={{ display: 'block', color: '#a0a0b0', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Title</label>
                                 <input
@@ -231,11 +306,11 @@ const KanbanBoard = ({ projectId }) => {
                                 </select>
                             </div>
                             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-                                <AnimatedButton variant="secondary" type="button" onClick={() => setShowTaskModal(false)}>
+                                <AnimatedButton variant="secondary" type="button" onClick={closeModal}>
                                     Cancel
                                 </AnimatedButton>
                                 <AnimatedButton variant="primary" type="submit">
-                                    Create Task
+                                    {editingTask ? 'Save Changes' : 'Create Task'}
                                 </AnimatedButton>
                             </div>
                         </form>
