@@ -3,8 +3,18 @@ import fetch from 'node-fetch';
 
 export const fetchDevToPosts = async (tag = 'career') => {
     try {
-        const response = await fetch(`https://dev.to/api/articles?tag=${tag}&top=1&per_page=10`);
-        if (!response.ok) throw new Error('Failed to fetch from Dev.to');
+        const headers = {};
+        if (process.env.DEV_TO_API_KEY) {
+            headers['api-key'] = process.env.DEV_TO_API_KEY;
+        }
+
+        const response = await fetch(`https://dev.to/api/articles?tag=${tag}&top=1&per_page=10`, { headers });
+        if (!response.ok) {
+            // Log error but verify structure
+            const errText = await response.text();
+            console.error('Dev.to API Error:', response.status, errText);
+            throw new Error(`Failed to fetch from Dev.to: ${response.status}`);
+        }
         const data = await response.json();
 
         return data.map(article => ({
