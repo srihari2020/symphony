@@ -12,7 +12,8 @@ const KanbanColumn = ({ title, status, tasks, onDragStart, onDrop, onEdit, onDel
     return (
         <div
             className="kanban-column"
-            onMouseEnter={() => onDrop(status)} // Simple drop detection via hover
+            data-status={status} // Logic ID for drop detection
+            onMouseEnter={() => onDrop(status)}
             style={{
                 background: 'rgba(255, 255, 255, 0.03)',
                 borderRadius: '16px',

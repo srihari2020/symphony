@@ -73,11 +73,33 @@ const KanbanBoard = ({ projectId }) => {
     };
 
     const handleDrop = (targetStatus) => {
+        // Redundant with new logic, but kept for fallback
         setDraggedOverColumn(targetStatus);
     };
 
-    const handleDragEnd = async () => {
-        if (!draggedTask || !draggedOverColumn || draggedTask.status === draggedOverColumn) {
+    const handleDragEnd = async (event) => {
+        if (!draggedTask) return;
+
+        // Calculate drop target based on pointer coordinates
+        let clientX, clientY;
+
+        if (event.type === 'touchend') {
+            const touch = event.changedTouches[0];
+            clientX = touch.clientX;
+            clientY = touch.clientY;
+        } else {
+            clientX = event.clientX;
+            clientY = event.clientY;
+        }
+
+        const elementsUnderCursor = document.elementsFromPoint(clientX, clientY);
+
+        // Find the column element in the stack
+        // Look for the attribute we added
+        const columnElement = elementsUnderCursor.find(el => el.getAttribute && el.getAttribute('data-status'));
+        const targetStatus = columnElement ? columnElement.getAttribute('data-status') : null;
+
+        if (!targetStatus || draggedTask.status === targetStatus) {
             setDraggedTask(null);
             setDraggedOverColumn(null);
             return;
@@ -85,9 +107,12 @@ const KanbanBoard = ({ projectId }) => {
 
         // Optimistic Update
         const updatedTasks = tasks.map(t =>
-            t._id === draggedTask._id ? { ...t, status: draggedOverColumn } : t
+            t._id === draggedTask._id ? { ...t, status: targetStatus } : t
         );
         setTasks(updatedTasks);
+
+        setDraggedTask(null);
+        setDraggedOverColumn(null);
 
         // API Update
         try {
@@ -97,15 +122,12 @@ const KanbanBoard = ({ projectId }) => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ status: draggedOverColumn })
+                body: JSON.stringify({ status: targetStatus })
             });
         } catch (err) {
             console.error('Error updating task status:', err);
             fetchTasks(); // Revert on error
         }
-
-        setDraggedTask(null);
-        setDraggedOverColumn(null);
     };
 
     // State for editing
