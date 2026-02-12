@@ -132,6 +132,11 @@ export default function Layout({ children }) {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
 
+    // Simplified Sidebar Logic:
+    // 1. Initialize isMobile based on window width.
+    // 2. Handle resize to switch modes.
+    // 3. Close sidebar ONLY via user interaction (clicks) to prevent state locks during navigation.
+
     useEffect(() => {
         const handleResize = () => {
             const mobile = window.innerWidth < 768;
@@ -149,13 +154,6 @@ export default function Layout({ children }) {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, [isMobile]);
-
-    // Close sidebar on route change for mobile
-    useEffect(() => {
-        if (isMobile) {
-            setIsSidebarOpen(false);
-        }
-    }, [location, isMobile]);
 
     const handleLogout = () => {
         logout();
