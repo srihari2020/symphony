@@ -980,11 +980,7 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
-    .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-    }
+    /* Sidebar handled by Layout.jsx animations */
 
     .main-content {
         margin-left: 0;
