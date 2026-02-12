@@ -135,11 +135,14 @@ const Community = () => {
     const [newPost, setNewPost] = useState('');
     const [filter, setFilter] = useState('all');
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
     const fetchPosts = async () => {
         if (!token) return;
+        setLoading(true);
+        setError(null);
         try {
             const res = await fetch(`${API_URL}/posts`, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -159,10 +162,12 @@ const Community = () => {
             } else {
                 console.error('API response is not an array:', data);
                 setPosts([]);
+                setError('Invalid data format received from server');
             }
         } catch (err) {
             console.error('Error fetching posts:', err);
             setPosts([]);
+            setError(err.message);
         } finally {
             setLoading(false);
         }
@@ -297,6 +302,28 @@ const Community = () => {
             {/* Feed */}
             {loading ? (
                 <ListSkeleton count={5} />
+            ) : error ? (
+                <div style={{ textAlign: 'center', padding: '3rem', color: '#ef4444' }}>
+                    <div style={{ marginBottom: '1rem', fontSize: '2rem' }}>⚠️</div>
+                    <h3>Failed to load community feed</h3>
+                    <p style={{ color: '#ccc', marginBottom: '1rem' }}>{error}</p>
+                    <button
+                        onClick={fetchPosts}
+                        style={{
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.5)',
+                            color: '#ef4444',
+                            padding: '0.5rem 1.5rem',
+                            borderRadius: '8px',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Retry
+                    </button>
+                    <p style={{ marginTop: '2rem', fontSize: '0.8rem', color: '#666' }}>
+                        Debug Info: API_URL = {API_URL}
+                    </p>
+                </div>
             ) : (
                 <div className="feed">
                     <AnimatePresence>
