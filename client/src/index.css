@@ -82,6 +82,8 @@ body {
     flex-direction: column;
     position: fixed;
     height: 100vh;
+    z-index: 50;
+    /* Base desktop z-index */
 }
 
 .sidebar-header {

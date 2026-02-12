@@ -129,23 +129,26 @@ export default function Layout({ children }) {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const [isMobile, setIsMobile] = useState(false);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
 
     useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth < 768);
-            if (window.innerWidth >= 768) {
+        const handleResize = () => {
+            const mobile = window.innerWidth < 768;
+            setIsMobile(mobile);
+
+            // Only auto-correct sidebar state if crossing breakpoint
+            if (!mobile && isMobile) {
                 setIsSidebarOpen(true);
-            } else {
+            }
+            if (mobile && !isMobile) {
                 setIsSidebarOpen(false);
             }
         };
 
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, [isMobile]);
 
     // Close sidebar on route change for mobile
     useEffect(() => {
