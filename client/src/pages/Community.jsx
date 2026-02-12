@@ -7,6 +7,7 @@ import AnimatedButton from '../components/AnimatedButton';
 const PostCard = ({ post, onLike }) => {
     const { user } = useAuth();
     const isLiked = post.likes.includes(user?._id);
+    const isExternal = post.source === 'Dev.to';
 
     return (
         <motion.div
@@ -15,22 +16,46 @@ const PostCard = ({ post, onLike }) => {
             animate={{ opacity: 1, y: 0 }}
             className="post-card"
             style={{
-                background: '#1e1e24',
+                background: isExternal ? 'linear-gradient(145deg, #1e1e24 0%, #1a1a20 100%)' : '#1e1e24',
                 borderRadius: '16px',
                 padding: '1.5rem',
                 marginBottom: '1rem',
-                border: '1px solid rgba(255, 255, 255, 0.05)'
+                border: isExternal ? '1px solid rgba(45, 212, 191, 0.2)' : '1px solid rgba(255, 255, 255, 0.05)',
+                position: 'relative',
+                overflow: 'hidden'
             }}
         >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+            {isExternal && (
                 <div style={{
-                    width: '40px', height: '40px', borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #2dd4bf 0%, #06b6d4 100%)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontWeight: 'bold', color: 'white'
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    background: '#2dd4bf',
+                    color: '#000',
+                    fontSize: '0.6rem',
+                    fontWeight: 'bold',
+                    padding: '2px 8px',
+                    borderBottomLeftRadius: '8px'
                 }}>
-                    {post.author?.name?.[0] || 'U'}
+                    DEV.TO
                 </div>
+            )}
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                {post.author?.avatar ? (
+                    <img src={post.author.avatar} alt={post.author.name} style={{
+                        width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover'
+                    }} />
+                ) : (
+                    <div style={{
+                        width: '40px', height: '40px', borderRadius: '50%',
+                        background: 'linear-gradient(135deg, #2dd4bf 0%, #06b6d4 100%)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontWeight: 'bold', color: 'white'
+                    }}>
+                        {post.author?.name?.[0] || 'U'}
+                    </div>
+                )}
                 <div>
                     <h4 style={{ margin: 0, color: 'white' }}>{post.author?.name || 'Unknown User'}</h4>
                     <span style={{ fontSize: '0.8rem', color: '#666' }}>
@@ -43,18 +68,40 @@ const PostCard = ({ post, onLike }) => {
                 {post.content}
             </p>
 
+            {post.externalLink && (
+                <div style={{ marginBottom: '1.5rem' }}>
+                    <a href={post.externalLink} target="_blank" rel="noopener noreferrer" style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        color: '#2dd4bf',
+                        textDecoration: 'none',
+                        fontSize: '0.9rem',
+                        fontWeight: 500
+                    }}>
+                        Read Full Article on Dev.to
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                    </a>
+                </div>
+            )}
+
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '1rem' }}>
                 <button
-                    onClick={() => onLike(post._id)}
+                    onClick={() => !isExternal && onLike(post._id)}
                     style={{
                         background: 'transparent',
                         border: 'none',
                         color: isLiked ? '#ef4444' : '#888',
-                        cursor: 'pointer',
+                        cursor: isExternal ? 'default' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.5rem',
-                        transition: 'color 0.2s'
+                        transition: 'color 0.2s',
+                        opacity: isExternal ? 0.7 : 1
                     }}
                 >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill={isLiked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
@@ -66,7 +113,7 @@ const PostCard = ({ post, onLike }) => {
                     background: 'transparent',
                     border: 'none',
                     color: '#888',
-                    cursor: 'pointer',
+                    cursor: 'default',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem'

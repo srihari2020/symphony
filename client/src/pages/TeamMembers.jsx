@@ -7,6 +7,60 @@ import Spotlight from '../components/Spotlight';
 import { useAuth } from '../context/AuthContext';
 import './TeamMembers.css';
 
+const CandidatesList = ({ orgId }) => {
+    const [candidates, setCandidates] = useState([]);
+
+    useEffect(() => {
+        if (!orgId) return;
+        const fetchCandidates = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${import.meta.env.VITE_API_URL}/organizations/${orgId}/members/candidates`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (res.ok) setCandidates(await res.json());
+            } catch (e) { console.error(e); }
+        };
+        fetchCandidates();
+    }, [orgId]);
+
+    if (candidates.length === 0) return null;
+
+    return (
+        <>
+            {candidates.map(candidate => (
+                <div key={candidate._id} style={{
+                    minWidth: '200px',
+                    background: '#222',
+                    padding: '1rem',
+                    borderRadius: '12px',
+                    border: '1px solid #333',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                }}>
+                    <img src={candidate.avatar} alt={candidate.name} style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
+                    <div style={{ textAlign: 'center' }}>
+                        <h4 style={{ color: '#fff', fontSize: '0.9rem', margin: 0 }}>{candidate.name}</h4>
+                        <span style={{ color: '#888', fontSize: '0.75rem' }}>Open to Work</span>
+                    </div>
+                    <button style={{
+                        marginTop: '0.5rem',
+                        background: 'rgba(59, 130, 246, 0.2)',
+                        color: '#60a5fa',
+                        border: '1px solid rgba(59, 130, 246, 0.3)',
+                        padding: '4px 12px',
+                        borderRadius: '12px',
+                        fontSize: '0.75rem',
+                        cursor: 'pointer'
+                    }}>Connect</button>
+                </div>
+            ))}
+        </>
+    );
+};
+
 function TeamMembers() {
     console.log("Rendering TeamMembers, useAuth:", useAuth);
     const [members, setMembers] = useState([]);
@@ -203,30 +257,50 @@ function TeamMembers() {
                         + Invite Member
                     </AnimatedButton>
                 )}
+
+
+                {/* ... header ... */}
             </div>
 
-            {error && (
-                <motion.div
-                    className="error-message"
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                >
-                    {error}
-                </motion.div>
-            )}
+            {
+                error && (
+                    <motion.div
+                        className="error-message"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                    >
+                        {error}
+                    </motion.div>
+                )
+            }
 
-            {members.length === 0 ? (
+            {/* Suggested Candidates (From External App/API) */}
+            <div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
+                <h3 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" /><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    Suggested Candidates (from External Network)
+                </h3>
                 <motion.div
-                    className="empty-state"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.2 }}
+                    layout
+                    style={{ display: 'flex', gap: '1rem', overflowX: 'auto', paddingBottom: '1rem' }}
                 >
-                    <h2>No Team Members Found</h2>
-                    <p>Your organization needs to be migrated to the new team system.</p>
-                    <p><strong>Run this in the browser console (F12):</strong></p>
-                    <pre style={{ background: '#2a2a2a', padding: '1rem', borderRadius: '8px', overflowX: 'auto', fontSize: '0.85rem' }}>
-                        {`fetch('${import.meta.env.VITE_API_URL}/organizations/migrate-members', {
+                    <CandidatesList orgId={organization?._id} />
+                </motion.div>
+            </div>
+
+            {
+                members.length === 0 ? (
+                    <motion.div
+                        className="empty-state"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.2 }}
+                    >
+                        <h2>No Team Members Found</h2>
+                        <p>Your organization needs to be migrated to the new team system.</p>
+                        <p><strong>Run this in the browser console (F12):</strong></p>
+                        <pre style={{ background: '#2a2a2a', padding: '1rem', borderRadius: '8px', overflowX: 'auto', fontSize: '0.85rem' }}>
+                            {`fetch('${import.meta.env.VITE_API_URL}/organizations/migrate-members', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer ' + localStorage.getItem('token'),
@@ -236,76 +310,77 @@ function TeamMembers() {
   console.log('✅', data);
   window.location.reload();
 });`}
-                    </pre>
-                    <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>After running this,the page will refresh and show your team!</p>
-                </motion.div>
-            ) : (
-                <motion.div
-                    className="members-grid"
-                    initial="hidden"
-                    animate="visible"
-                    variants={{
-                        hidden: { opacity: 0 },
-                        visible: {
-                            opacity: 1,
-                            transition: {
-                                staggerChildren: 0.1
+                        </pre>
+                        <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>After running this,the page will refresh and show your team!</p>
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        className="members-grid"
+                        initial="hidden"
+                        animate="visible"
+                        variants={{
+                            hidden: { opacity: 0 },
+                            visible: {
+                                opacity: 1,
+                                transition: {
+                                    staggerChildren: 0.1
+                                }
                             }
-                        }
-                    }}
-                >
-                    {members.map(member => (
-                        <Spotlight
-                            key={member._id}
-                            className="member-card"
-                            variants={{
-                                hidden: { opacity: 0, y: 20 },
-                                visible: { opacity: 1, y: 0 }
-                            }}
-                            whileHover={{
-                                y: -5,
-                                transition: { duration: 0.2 }
-                            }}
-                        >
-                            <div className="member-avatar">
-                                {getInitials(member.user?.name || 'Unknown')}
-                            </div>
-                            <div className="member-info">
-                                <h3>{member.user?.name || 'Unknown User'}</h3>
-                                <p className="member-email">{member.user?.email || 'No email'}</p>
-                                <span className={`role-badge ${getRoleBadgeClass(member.role)}`}>
-                                    {member.role}
-                                </span>
-                                {member.joinedAt && (
-                                    <p className="member-joined">
-                                        Joined {new Date(member.joinedAt).toLocaleDateString()}
-                                    </p>
-                                )}
-                            </div>
-                            {canInvite && member.role !== 'owner' && member.user?._id !== userId && member.user?.id !== userId && (
-                                <div className="member-actions">
-                                    {currentMember.role === 'owner' && (
-                                        <select
-                                            value={member.role}
-                                            onChange={(e) => handleChangeRole(member.user?._id, e.target.value)}
-                                            className="role-select"
-                                        >
-                                            <option value="admin">Admin</option>
-                                            <option value="member">Member</option>
-                                        </select>
-                                    )}
-                                    <button
-                                        className="btn-danger-small"
-                                        onClick={() => handleRemoveMember(member.user?._id)}
-                                    >
-                                        Remove
-                                    </button>
+                        }}
+                    >
+                        {members.map(member => (
+                            <Spotlight
+                                key={member._id}
+                                className="member-card"
+                                variants={{
+                                    hidden: { opacity: 0, y: 20 },
+                                    visible: { opacity: 1, y: 0 }
+                                }}
+                                whileHover={{
+                                    y: -5,
+                                    transition: { duration: 0.2 }
+                                }}
+                            >
+                                <div className="member-avatar">
+                                    {getInitials(member.user?.name || 'Unknown')}
                                 </div>
-                            )}
-                        </Spotlight>
-                    ))}
-                </motion.div>
-            )}
+                                <div className="member-info">
+                                    <h3>{member.user?.name || 'Unknown User'}</h3>
+                                    <p className="member-email">{member.user?.email || 'No email'}</p>
+                                    <span className={`role-badge ${getRoleBadgeClass(member.role)}`}>
+                                        {member.role}
+                                    </span>
+                                    {member.joinedAt && (
+                                        <p className="member-joined">
+                                            Joined {new Date(member.joinedAt).toLocaleDateString()}
+                                        </p>
+                                    )}
+                                </div>
+                                {canInvite && member.role !== 'owner' && member.user?._id !== userId && member.user?.id !== userId && (
+                                    <div className="member-actions">
+                                        {currentMember.role === 'owner' && (
+                                            <select
+                                                value={member.role}
+                                                onChange={(e) => handleChangeRole(member.user?._id, e.target.value)}
+                                                className="role-select"
+                                            >
+                                                <option value="admin">Admin</option>
+                                                <option value="member">Member</option>
+                                            </select>
+                                        )}
+                                        <button
+                                            className="btn-danger-small"
+                                            onClick={() => handleRemoveMember(member.user?._id)}
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                )}
+                            </Spotlight>
+                        ))}
+                    </motion.div>
+                )
+            }
 
             <AnimatePresence>
                 {showInviteModal && (
@@ -357,7 +432,7 @@ function TeamMembers() {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </motion.div>
+        </motion.div >
     );
 }
 

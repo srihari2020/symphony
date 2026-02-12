@@ -6,7 +6,19 @@ import User from '../models/User.js';
 import { authenticate } from '../middleware/auth.js';
 import { sendInvitationEmail } from '../services/emailService.js';
 
+import { fetchRandomUsers } from '../services/externalContent.js';
+
 const router = express.Router();
+
+// GET /api/organizations/:orgId/members/candidates - Get external candidates (Real-world API)
+router.get('/:orgId/members/candidates', authenticate, async (req, res) => {
+    try {
+        const candidates = await fetchRandomUsers(5);
+        res.json(candidates);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch external candidates' });
+    }
+});
 
 // Middleware to check if user is member of organization
 async function checkOrgMembership(req, res, next) {

@@ -5,17 +5,35 @@ import { sendNotification } from '../services/socketService.js';
 
 const router = express.Router();
 
+import { fetchDevToPosts } from '../services/externalContent.js';
+
 // GET /api/posts - Get all posts (Global Feed)
 router.get('/', authenticate, async (req, res) => {
     try {
-        const posts = await Post.find()
+        // Fetch local posts
+        const localPosts = await Post.find()
             .populate('author', 'name email avatar')
             .populate('organization', 'name')
             .populate('comments.author', 'name avatar')
             .sort({ createdAt: -1 })
-            .limit(50); // Pagination in v2
+            .limit(50);
 
-        res.json(posts);
+        // Fetch external posts (real-world data)
+        // We catch errors here so local posts still load if Dev.to is down
+        let externalPosts = [];
+        try {
+            externalPosts = await fetchDevToPosts('career');
+        } catch (extErr) {
+            console.error('External feed failed:', extErr);
+        }
+
+        // Merge: Interleave or just append?
+        // Let's sort combined list by date
+        const allPosts = [...localPosts, ...externalPosts].sort((a, b) =>
+            new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
+        res.json(allPosts);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
