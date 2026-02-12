@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-
 const KanbanCard = ({ task, index, onDragStart, onEdit, onDelete }) => {
     const priorityColors = {
         low: '#22c55e',
@@ -10,8 +9,7 @@ const KanbanCard = ({ task, index, onDragStart, onEdit, onDelete }) => {
     };
 
     return (
-        <Spotlight
-            as={motion.div}
+        <motion.div
             layoutId={task._id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -22,13 +20,15 @@ const KanbanCard = ({ task, index, onDragStart, onEdit, onDelete }) => {
             dragMomentum={false}
             onDragStart={() => onDragStart(task, index)}
             whileDrag={{ scale: 1.05, zIndex: 100, cursor: 'grabbing', boxShadow: '0 8px 20px rgba(0,0,0,0.5)' }}
-            whileHover={{ scale: 1.02, cursor: 'grab' }}
+            whileHover={{ scale: 1.02, cursor: 'grab', backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
             className="kanban-card group"
             style={{
                 marginBottom: '0.75rem',
                 borderRadius: '12px',
                 position: 'relative',
-                touchAction: 'none'
+                touchAction: 'none',
+                background: '#1a1a20',
+                border: '1px solid rgba(255,255,255,0.05)'
             }}
         >
             <div style={{ padding: '1rem' }}>
@@ -114,7 +114,7 @@ const KanbanCard = ({ task, index, onDragStart, onEdit, onDelete }) => {
                     </div>
                 )}
             </div>
-        </Spotlight>
+        </motion.div>
     );
 };
 
