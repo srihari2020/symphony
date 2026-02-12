@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import AnimatedButton from '../components/AnimatedButton';
+import { ListSkeleton } from '../components/LoadingSkeleton';
 
 const PostCard = ({ post, onLike }) => {
     const { user } = useAuth();
@@ -214,10 +215,38 @@ const Community = () => {
     const filteredPosts = filter === 'all' ? posts : posts.filter(p => p.type === filter);
 
     return (
+    // ... (rest of component logic remains)
+
+    return (
         <div className="community-page" style={{ maxWidth: '800px', margin: '0 auto', color: '#fff' }}>
-            <div className="page-header" style={{ marginBottom: '2rem' }}>
-                <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Community Hub</h1>
-                <p style={{ color: '#888' }}>Connect with others, find teams, and share your journey.</p>
+            <div className="page-header" style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                    <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Community Hub</h1>
+                    <p style={{ color: '#888' }}>Connect with others, find teams, and share your journey.</p>
+                </div>
+                {!loading && (
+                    <button
+                        onClick={fetchPosts}
+                        style={{
+                            background: 'rgba(255,255,255,0.1)',
+                            border: 'none',
+                            color: '#fff',
+                            padding: '0.5rem',
+                            borderRadius: '50%',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                        title="Refresh Feed"
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M23 4v6h-6"></path>
+                            <path d="M1 20v-6h6"></path>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                    </button>
+                )}
             </div>
 
             {/* Create Post */}
@@ -270,7 +299,7 @@ const Community = () => {
 
             {/* Feed */}
             {loading ? (
-                <div>Loading community...</div>
+                <ListSkeleton count={5} />
             ) : (
                 <div className="feed">
                     <AnimatePresence>
@@ -278,14 +307,41 @@ const Community = () => {
                             <PostCard key={post._id} post={post} onLike={handleLike} />
                         ))}
                     </AnimatePresence>
-                    {filteredPosts.length === 0 && (
-                        <div style={{ textAlign: 'center', padding: '3rem', color: '#666' }}>
-                            No posts yet. Be the first to share!
+
+                    {!loading && filteredPosts.length === 0 && (
+                        <div style={{
+                            textAlign: 'center',
+                            padding: '4rem 2rem',
+                            color: '#666',
+                            background: 'rgba(255,255,255,0.02)',
+                            borderRadius: '16px',
+                            border: '1px dashed rgba(255,255,255,0.1)'
+                        }}>
+                            <div style={{ marginBottom: '1rem', fontSize: '2rem' }}>📭</div>
+                            <h3 style={{ color: '#fff', marginBottom: '0.5rem' }}>No posts found</h3>
+                            <p style={{ maxWidth: '400px', margin: '0 auto 1.5rem' }}>
+                                The community feed is currently empty. Be the first to start a conversation or check back later!
+                            </p>
+                            <button
+                                onClick={fetchPosts}
+                                style={{
+                                    background: 'transparent',
+                                    border: '1px solid rgba(45, 212, 191, 0.5)',
+                                    color: '#2dd4bf',
+                                    padding: '0.5rem 1.5rem',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem'
+                                }}
+                            >
+                                Refresh Feed
+                            </button>
                         </div>
                     )}
                 </div>
             )}
         </div>
+    );
     );
 };
 
