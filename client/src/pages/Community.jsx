@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import AnimatedButton from '../components/AnimatedButton';
 import { ListSkeleton } from '../components/LoadingSkeleton';
+import SvgBackground from '../components/SvgBackground';
 
 const PostCard = ({ post, onLike, onComment, onDeleteComment, onDeletePost }) => {
     const { user } = useAuth();
@@ -422,7 +423,8 @@ const Community = () => {
 
     return (
         <div className="community-page" style={{ maxWidth: '800px', margin: '0 auto', color: '#fff' }}>
-            <div className="page-header" style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="page-header" style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
+                <SvgBackground variant="teal" opacity={0.03} />
                 <div>
                     <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Community Hub</h1>
                     <p style={{ color: '#888' }}>Connect with others, find teams, and share your journey.</p>

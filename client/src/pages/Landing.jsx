@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, useScroll, useTransform, useInView, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import Logo from '../components/Logo';
 
 /* ════════════════════════════════════════════════
    SVG ANIMATED COMPONENTS
@@ -365,7 +366,7 @@ export default function Landing() {
                     transition={{ duration: 0.8, delay: 0.1 }}
                     style={{ marginBottom: '2rem', zIndex: 1 }}
                 >
-                    <AnimatedLogo />
+                    <Logo size="large" variant="primary" />
                 </motion.div>
 
                 {/* Badge */}
@@ -611,7 +612,183 @@ export default function Landing() {
 
             <WaveDivider flip color="rgba(99,102,241,0.03)" />
 
-            {/* ═══════════ HOW IT WORKS ═══════════ */}
+            {/* ═══════════ APP PREVIEW — SVG DASHBOARD MOCKUP ═══════════ */}
+            <section style={{ padding: '6rem 2rem', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ maxWidth: '1100px', margin: '0 auto', position: 'relative' }}>
+                    <Reveal>
+                        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+                            <span style={{ fontSize: '0.8rem', color: '#8b5cf6', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 700 }}>
+                                See it in action
+                            </span>
+                            <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 700, marginTop: '0.75rem', letterSpacing: '-0.02em' }}>
+                                A workspace that sparks joy
+                            </h2>
+                        </div>
+                    </Reveal>
+
+                    {/* SVG Dashboard Mockup */}
+                    <Reveal delay={0.2}>
+                        <motion.div
+                            whileHover={{ y: -8, rotateX: 2, rotateY: -1 }}
+                            style={{
+                                perspective: '1200px',
+                                maxWidth: '900px', margin: '0 auto',
+                                borderRadius: '20px', overflow: 'hidden',
+                                border: '1px solid rgba(255,255,255,0.08)',
+                                boxShadow: '0 40px 80px rgba(0,0,0,0.5), 0 0 60px rgba(99,102,241,0.1)',
+                            }}
+                        >
+                            <svg viewBox="0 0 900 520" style={{ width: '100%', display: 'block', background: '#0f0f14' }}>
+                                {/* Title bar */}
+                                <rect x="0" y="0" width="900" height="36" fill="#16161d" />
+                                <motion.circle cx="16" cy="18" r="5" fill="#ef4444" initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.3, type: 'spring' }} />
+                                <motion.circle cx="34" cy="18" r="5" fill="#f59e0b" initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.4, type: 'spring' }} />
+                                <motion.circle cx="52" cy="18" r="5" fill="#22c55e" initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.5, type: 'spring' }} />
+
+                                {/* Sidebar */}
+                                <motion.rect x="0" y="36" width="180" height="484" fill="#16161d" initial={{ x: -180 }} whileInView={{ x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.4 }} />
+                                {/* Sidebar items */}
+                                {[60, 100, 140, 180, 220].map((y, i) => (
+                                    <g key={`sb-${i}`}>
+                                        <motion.rect x="20" y={y} width="140" height="28" rx="8" fill={i === 0 ? 'rgba(99,102,241,0.15)' : 'transparent'} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.6 + i * 0.1 }} />
+                                        <motion.rect x="32" y={y + 8} width={60 + i * 8} height="12" rx="6" fill={i === 0 ? '#6366f1' : 'rgba(255,255,255,0.06)'} initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }} transition={{ delay: 0.7 + i * 0.1 }} />
+                                    </g>
+                                ))}
+
+                                {/* Main content — Kanban columns */}
+                                {[{ x: 200, title: 'To Do', color: '#6366f1', cards: 3 }, { x: 440, title: 'In Progress', color: '#2dd4bf', cards: 2 }, { x: 680, title: 'Done', color: '#22c55e', cards: 2 }].map((col, ci) => (
+                                    <g key={`col-${ci}`}>
+                                        <motion.rect x={col.x} y={50} width="210" height="12" rx="6" fill={col.color} opacity="0.4" initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }} transition={{ delay: 0.8 + ci * 0.15, duration: 0.5 }} />
+                                        {Array.from({ length: col.cards }).map((_, ki) => (
+                                            <motion.rect key={`card-${ci}-${ki}`} x={col.x} y={78 + ki * 120} width="210" height="100" rx="12" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.06)" strokeWidth="1" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 1 + ci * 0.2 + ki * 0.15, type: 'spring' }} />
+                                        ))}
+                                    </g>
+                                ))}
+
+                                {/* Floating notification badge */}
+                                <motion.g initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ delay: 1.8, type: 'spring', stiffness: 200 }}>
+                                    <circle cx="860" cy="56" r="10" fill="#ef4444" />
+                                    <text x="860" y="60" textAnchor="middle" fill="white" fontSize="10" fontWeight="700">3</text>
+                                </motion.g>
+                            </svg>
+                        </motion.div>
+                    </Reveal>
+
+                    {/* Floating feature callouts */}
+                    <Reveal delay={0.5} direction="left">
+                        <motion.div
+                            animate={{ y: [0, -8, 0] }}
+                            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                            style={{
+                                position: 'absolute', top: '30%', left: '-30px',
+                                background: 'rgba(22,22,29,0.9)', border: '1px solid rgba(99,102,241,0.2)',
+                                borderRadius: '14px', padding: '1rem 1.25rem',
+                                backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', gap: '0.75rem',
+                                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                            }}
+                        >
+                            <svg width="24" height="24" viewBox="0 0 24 24"><DrawPath d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke="#22c55e" strokeWidth={2} delay={1} duration={1} /><DrawPath d="M22 4L12 14.01l-3-3" stroke="#22c55e" strokeWidth={2} delay={1.5} duration={0.6} /></svg>
+                            <span style={{ fontSize: '0.82rem', color: '#a0a0b0' }}>Real-time sync</span>
+                        </motion.div>
+                    </Reveal>
+                    <Reveal delay={0.7} direction="right">
+                        <motion.div
+                            animate={{ y: [0, -10, 0] }}
+                            transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+                            style={{
+                                position: 'absolute', top: '55%', right: '-20px',
+                                background: 'rgba(22,22,29,0.9)', border: '1px solid rgba(45,212,191,0.2)',
+                                borderRadius: '14px', padding: '1rem 1.25rem',
+                                backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', gap: '0.75rem',
+                                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                            }}
+                        >
+                            <svg width="24" height="24" viewBox="0 0 24 24"><DrawPath d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2" stroke="#2dd4bf" strokeWidth={2} delay={1.2} duration={1} /><DrawPath d="M23 21v-2a4 4 0 00-3-3.87" stroke="#2dd4bf" strokeWidth={2} delay={1.5} duration={0.8} /></svg>
+                            <span style={{ fontSize: '0.82rem', color: '#a0a0b0' }}>Team collab</span>
+                        </motion.div>
+                    </Reveal>
+                </div>
+            </section>
+
+            {/* ═══════════ INTEGRATES WITH — SVG TECH LOGOS ═══════════ */}
+            <section style={{ padding: '4rem 2rem', position: 'relative' }}>
+                <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+                    <Reveal>
+                        <p style={{ fontSize: '0.8rem', color: '#555', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600, marginBottom: '2rem' }}>
+                            Integrates with your favorite tools
+                        </p>
+                    </Reveal>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '3rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                        {[
+                            { name: 'GitHub', path: 'M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02A9.56 9.56 0 0112 6.8c.85.004 1.7.114 2.5.34 1.9-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.16.59.67.5A10.02 10.02 0 0022 12c0-5.52-4.48-10-10-10z', color: '#e6edf3' },
+                            { name: 'Slack', path: 'M14.5 2c-.83 0-1.5.67-1.5 1.5v5c0 .83.67 1.5 1.5 1.5h5c.83 0 1.5-.67 1.5-1.5S20.33 7 19.5 7h-3.5V3.5c0-.83-.67-1.5-1.5-1.5zM2 9.5C2 10.33 2.67 11 3.5 11H7v3.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5zM9.5 22c.83 0 1.5-.67 1.5-1.5v-5c0-.83-.67-1.5-1.5-1.5h-5c-.83 0-1.5.67-1.5 1.5S3.67 17 4.5 17H8v2.5c0 .83.67 1.5 1.5 1.5zM22 14.5c0-.83-.67-1.5-1.5-1.5H17v-3.5c0-.83-.67-1.5-1.5-1.5S14 8.67 14 9.5v5c0 .83.67 1.5 1.5 1.5h5c.83 0 1.5-.67 1.5-1.5z', color: '#E01E5A' },
+                            { name: 'VS Code', path: 'M17 2l-11 9.5L2 8.5V15.5l4-3L17 22l5-2.5V4.5L17 2zM6 11.5l-2.5 2V10.5L6 11.5z', color: '#007ACC' },
+                            { name: 'React', path: 'M12 13.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z', color: '#61DAFB' },
+                        ].map((tool, i) => (
+                            <Reveal key={tool.name} delay={i * 0.12}>
+                                <motion.div
+                                    whileHover={{ scale: 1.15, y: -4 }}
+                                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', cursor: 'default' }}
+                                >
+                                    <div style={{ width: 52, height: 52, borderRadius: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <svg viewBox="0 0 24 24" width="24" height="24">
+                                            <motion.path d={tool.path} fill={tool.color} initial={{ scale: 0, opacity: 0 }} whileInView={{ scale: 1, opacity: 0.7 }} viewport={{ once: true }} transition={{ delay: 0.5 + i * 0.15, type: 'spring' }} />
+                                        </svg>
+                                    </div>
+                                    <span style={{ fontSize: '0.72rem', color: '#555' }}>{tool.name}</span>
+                                </motion.div>
+                            </Reveal>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            <WaveDivider color="rgba(99,102,241,0.03)" />
+
+            {/* ═══════════ TESTIMONIALS ═══════════ */}
+            <section style={{ padding: '5rem 2rem', background: 'rgba(99,102,241,0.03)', position: 'relative' }}>
+                <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+                    <Reveal>
+                        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+                            <span style={{ fontSize: '0.8rem', color: '#f59e0b', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 700 }}>What devs are saying</span>
+                            <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 700, marginTop: '0.75rem' }}>Loved by teams worldwide</h2>
+                        </div>
+                    </Reveal>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
+                        {[
+                            { quote: "Symphony replaced 4 different tools for us. The Kanban boards + GitHub integration is chef's kiss.", name: 'Alex Chen', role: 'Engineering Lead', avatar: 'A' },
+                            { quote: "The animations are so smooth it makes project management feel fun. Seriously. Fun.", name: 'Priya Sharma', role: 'Full-Stack Developer', avatar: 'P' },
+                            { quote: "We shipped 2x faster after switching to Symphony. The real-time collab is game-changing.", name: 'Marcus Johnson', role: 'Startup Founder', avatar: 'M' },
+                        ].map((t, i) => (
+                            <Reveal key={t.name} delay={i * 0.15}>
+                                <motion.div
+                                    whileHover={{ y: -6, borderColor: 'rgba(99,102,241,0.2)' }}
+                                    style={{
+                                        background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
+                                        borderRadius: '20px', padding: '1.75rem', position: 'relative', overflow: 'hidden',
+                                        transition: 'border-color 0.3s',
+                                    }}
+                                >
+                                    {/* SVG quote mark */}
+                                    <svg width="32" height="32" viewBox="0 0 24 24" style={{ opacity: 0.1, position: 'absolute', top: 12, right: 16 }}>
+                                        <DrawPath d="M3 21c3-3 4-6 4-9V3h7v9c0 6-4 9-7 9H3z" stroke="#6366f1" strokeWidth={1.5} delay={0.5 + i * 0.2} duration={1} />
+                                    </svg>
+                                    <p style={{ color: '#a0a0b0', fontSize: '0.9rem', lineHeight: 1.7, marginBottom: '1.25rem', fontStyle: 'italic' }}>"{t.quote}"</p>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                        <motion.div whileHover={{ rotate: 10 }} style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700 }}>{t.avatar}</motion.div>
+                                        <div>
+                                            <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{t.name}</div>
+                                            <div style={{ color: '#555', fontSize: '0.75rem' }}>{t.role}</div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            </Reveal>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            <WaveDivider flip color="rgba(99,102,241,0.03)" />
             <section style={{ padding: '6rem 2rem', position: 'relative' }}>
                 <div style={{ maxWidth: '800px', margin: '0 auto' }}>
                     <Reveal>
@@ -804,7 +981,7 @@ export default function Landing() {
                 textAlign: 'center',
             }}>
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                    <AnimatedLogo />
+                    <Logo size="small" variant="primary" showText={false} />
                     <span style={{ fontWeight: 700, fontSize: '1rem' }}>Symphony</span>
                 </div>
                 <p style={{ color: '#333', fontSize: '0.78rem' }}>

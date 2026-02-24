@@ -6,6 +6,7 @@ import { GridSkeleton } from '../components/LoadingSkeleton';
 import AnimatedButton from '../components/AnimatedButton';
 import Spotlight from '../components/Spotlight';
 import Logo from '../components/Logo';
+import SvgBackground from '../components/SvgBackground';
 
 export default function Dashboard() {
     const [projects, setProjects] = useState([]);
@@ -84,7 +85,8 @@ export default function Dashboard() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
         >
-            <header className="page-header">
+            <header className="page-header" style={{ position: 'relative', overflow: 'hidden' }}>
+                <SvgBackground variant="default" opacity={0.03} />
                 <div className="dashboard-header-left">
                     <Logo size="small" variant="primary" showText={false} />
                     <motion.h1
