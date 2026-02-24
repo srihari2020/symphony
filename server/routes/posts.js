@@ -89,4 +89,32 @@ router.put('/:id/like', authenticate, async (req, res) => {
     }
 });
 
+// POST /api/posts/:id/comment - Add a comment to a post
+router.post('/:id/comment', authenticate, async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) return res.status(404).json({ error: 'Post not found' });
+
+        const { content } = req.body;
+        if (!content || !content.trim()) {
+            return res.status(400).json({ error: 'Comment content is required' });
+        }
+
+        post.comments.push({
+            author: req.user._id,
+            content: content.trim()
+        });
+
+        await post.save();
+
+        // Re-populate and return the full post
+        await post.populate('author', 'name email avatar');
+        await post.populate('comments.author', 'name avatar');
+
+        res.json(post);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 export default router;

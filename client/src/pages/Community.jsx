@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { useSocket } from '../context/SocketContext';
 import AnimatedButton from '../components/AnimatedButton';
 import { ListSkeleton } from '../components/LoadingSkeleton';
 
-const PostCard = ({ post, onLike }) => {
+const PostCard = ({ post, onLike, onComment }) => {
     const { user } = useAuth();
-    const isLiked = post.likes.includes(user?._id);
-    const isExternal = post.source === 'Dev.to';
+    const isLiked = Array.isArray(post.likes) && post.likes.includes(user?._id);
+    const isExternal = !!post.source && post.source !== 'local';
+    const [showCommentInput, setShowCommentInput] = useState(false);
+    const [commentText, setCommentText] = useState('');
+
+    const handleSubmitComment = () => {
+        if (!commentText.trim()) return;
+        onComment(post._id, commentText);
+        setCommentText('');
+        setShowCommentInput(false);
+    };
 
     return (
         <motion.div
@@ -38,13 +46,13 @@ const PostCard = ({ post, onLike }) => {
                     padding: '2px 8px',
                     borderBottomLeftRadius: '8px'
                 }}>
-                    DEV.TO
+                    {post.source?.toUpperCase() || 'EXTERNAL'}
                 </div>
             )}
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
                 {post.author?.avatar ? (
-                    <img src={post.author.avatar} alt={post.author.name} style={{
+                    <img src={post.author.avatar} alt={post.author?.name || 'User'} style={{
                         width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover'
                     }} />
                 ) : (
@@ -60,7 +68,7 @@ const PostCard = ({ post, onLike }) => {
                 <div>
                     <h4 style={{ margin: 0, color: 'white' }}>{post.author?.name || 'Unknown User'}</h4>
                     <span style={{ fontSize: '0.8rem', color: '#666' }}>
-                        {new Date(post.createdAt).toLocaleDateString()} • {post.type === 'general' ? 'Post' : post.type.replace('_', ' ')}
+                        {new Date(post.createdAt).toLocaleDateString()} • {post.type === 'general' ? 'Post' : (post.type || 'general').replace('_', ' ')}
                     </span>
                 </div>
             </div>
@@ -80,12 +88,7 @@ const PostCard = ({ post, onLike }) => {
                         fontSize: '0.9rem',
                         fontWeight: 500
                     }}>
-                        Read Full Article on Dev.to
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                            <polyline points="15 3 21 3 21 9"></polyline>
-                            <line x1="10" y1="14" x2="21" y2="3"></line>
-                        </svg>
+                        Read Full Article →
                     </a>
                 </div>
             )}
@@ -108,23 +111,100 @@ const PostCard = ({ post, onLike }) => {
                     <svg width="20" height="20" viewBox="0 0 24 24" fill={isLiked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                     </svg>
-                    {post.likes.length} Likes
+                    {Array.isArray(post.likes) ? post.likes.length : 0} Likes
                 </button>
-                <button style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#888',
-                    cursor: 'default',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                }}>
+                <button
+                    onClick={() => !isExternal && setShowCommentInput(!showCommentInput)}
+                    style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: showCommentInput ? '#2dd4bf' : '#888',
+                        cursor: isExternal ? 'default' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        opacity: isExternal ? 0.7 : 1
+                    }}
+                >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                     </svg>
-                    {post.comments?.length || 0} Comments
+                    {Array.isArray(post.comments) ? post.comments.length : 0} Comments
                 </button>
             </div>
+
+            {/* Comment Input */}
+            {showCommentInput && !isExternal && (
+                <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    style={{ marginTop: '1rem' }}
+                >
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <input
+                            type="text"
+                            value={commentText}
+                            onChange={(e) => setCommentText(e.target.value)}
+                            placeholder="Write a comment..."
+                            onKeyDown={(e) => e.key === 'Enter' && handleSubmitComment()}
+                            style={{
+                                flex: 1,
+                                background: 'rgba(0,0,0,0.3)',
+                                border: '1px solid #333',
+                                borderRadius: '8px',
+                                padding: '0.5rem 1rem',
+                                color: 'white',
+                                fontSize: '0.9rem'
+                            }}
+                        />
+                        <button
+                            onClick={handleSubmitComment}
+                            style={{
+                                background: 'rgba(45, 212, 191, 0.2)',
+                                border: '1px solid rgba(45, 212, 191, 0.4)',
+                                color: '#2dd4bf',
+                                padding: '0.5rem 1rem',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                fontSize: '0.85rem'
+                            }}
+                        >
+                            Post
+                        </button>
+                    </div>
+                </motion.div>
+            )}
+
+            {/* Existing Comments */}
+            {Array.isArray(post.comments) && post.comments.length > 0 && !isExternal && (
+                <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.75rem' }}>
+                    {post.comments.slice(0, 3).map((comment, i) => (
+                        <div key={comment._id || i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'flex-start' }}>
+                            <div style={{
+                                width: '24px', height: '24px', borderRadius: '50%',
+                                background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontSize: '0.65rem', color: '#aaa', flexShrink: 0
+                            }}>
+                                {comment.author?.name?.[0] || 'U'}
+                            </div>
+                            <div>
+                                <span style={{ color: '#aaa', fontSize: '0.8rem', fontWeight: 600 }}>
+                                    {comment.author?.name || 'User'}
+                                </span>
+                                <p style={{ color: '#999', fontSize: '0.85rem', margin: '2px 0 0 0' }}>
+                                    {comment.content}
+                                </p>
+                            </div>
+                        </div>
+                    ))}
+                    {post.comments.length > 3 && (
+                        <span style={{ color: '#666', fontSize: '0.8rem' }}>
+                            +{post.comments.length - 3} more comments
+                        </span>
+                    )}
+                </div>
+            )}
         </motion.div>
     );
 };
@@ -150,9 +230,6 @@ const Community = () => {
             });
 
             if (!res.ok) {
-                if (res.status === 401) {
-                    console.error('Unauthorized Access');
-                }
                 throw new Error(`HTTP error! status: ${res.status}`);
             }
 
@@ -161,7 +238,6 @@ const Community = () => {
             if (Array.isArray(data)) {
                 setPosts(data);
             } else {
-                console.error('API response is not an array:', data);
                 setPosts([]);
                 setError('Invalid data format received from server');
             }
@@ -179,13 +255,12 @@ const Community = () => {
             if (token) {
                 fetchPosts();
             } else {
-                setLoading(false); // Stop loading if not logged in
+                setLoading(false);
             }
         }
     }, [token, authLoading]);
 
-    const handleCreatePost = async (e) => {
-        e.preventDefault();
+    const handleCreatePost = async () => {
         if (!newPost.trim()) return;
 
         try {
@@ -195,26 +270,64 @@ const Community = () => {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ content: newPost, type: 'general' }) // Extend later for types
+                body: JSON.stringify({ content: newPost, type: 'general' })
             });
-            const post = await res.json();
-            setPosts([post, ...posts]);
+
+            if (!res.ok) {
+                throw new Error(`Failed to create post: ${res.status}`);
+            }
+
             setNewPost('');
+            // Re-fetch all posts to get the properly populated new post
+            await fetchPosts();
         } catch (err) {
             console.error('Error creating post:', err);
+            setError('Failed to create post. Please try again.');
         }
     };
 
     const handleLike = async (postId) => {
+        // Don't attempt to like external posts (non-MongoDB IDs)
+        if (!postId || typeof postId !== 'string' || postId.startsWith('devto-') || postId.startsWith('mock-')) return;
+
         try {
             const res = await fetch(`${API_URL}/posts/${postId}/like`, {
                 method: 'PUT',
                 headers: { Authorization: `Bearer ${token}` }
             });
+
+            if (!res.ok) {
+                throw new Error(`Like failed: ${res.status}`);
+            }
+
             const likes = await res.json();
             setPosts(posts.map(p => p._id === postId ? { ...p, likes } : p));
         } catch (err) {
             console.error('Error liking post:', err);
+        }
+    };
+
+    const handleComment = async (postId, content) => {
+        if (!postId || postId.startsWith('devto-') || postId.startsWith('mock-')) return;
+
+        try {
+            const res = await fetch(`${API_URL}/posts/${postId}/comment`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ content })
+            });
+
+            if (!res.ok) {
+                throw new Error(`Comment failed: ${res.status}`);
+            }
+
+            const updatedPost = await res.json();
+            setPosts(posts.map(p => p._id === postId ? updatedPost : p));
+        } catch (err) {
+            console.error('Error commenting:', err);
         }
     };
 
@@ -321,19 +434,16 @@ const Community = () => {
                     >
                         Retry
                     </button>
-                    <p style={{ marginTop: '2rem', fontSize: '0.8rem', color: '#666' }}>
-                        Debug Info: API_URL = {API_URL}
-                    </p>
                 </div>
             ) : (
                 <div className="feed">
                     <AnimatePresence>
                         {filteredPosts.map(post => (
-                            <PostCard key={post._id} post={post} onLike={handleLike} />
+                            <PostCard key={post._id} post={post} onLike={handleLike} onComment={handleComment} />
                         ))}
                     </AnimatePresence>
 
-                    {!loading && filteredPosts.length === 0 && (
+                    {filteredPosts.length === 0 && (
                         <div style={{
                             textAlign: 'center',
                             padding: '4rem 2rem',

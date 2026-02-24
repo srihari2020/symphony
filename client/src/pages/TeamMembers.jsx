@@ -26,6 +26,15 @@ const CandidatesList = ({ orgId }) => {
 
     if (candidates.length === 0) return null;
 
+    const handleConnect = (candidate) => {
+        // Open mailto link or external profile
+        if (candidate.profileUrl) {
+            window.open(candidate.profileUrl, '_blank', 'noopener,noreferrer');
+        } else if (candidate.email) {
+            window.open(`mailto:${candidate.email}?subject=Symphony Team Invitation&body=Hi ${candidate.name},%0A%0AWe'd love to have you on our team! Let's connect.`, '_blank');
+        }
+    };
+
     return (
         <>
             {candidates.map(candidate => (
@@ -45,16 +54,24 @@ const CandidatesList = ({ orgId }) => {
                         <h4 style={{ color: '#fff', fontSize: '0.9rem', margin: 0 }}>{candidate.name}</h4>
                         <span style={{ color: '#888', fontSize: '0.75rem' }}>Open to Work</span>
                     </div>
-                    <button style={{
-                        marginTop: '0.5rem',
-                        background: 'rgba(59, 130, 246, 0.2)',
-                        color: '#60a5fa',
-                        border: '1px solid rgba(59, 130, 246, 0.3)',
-                        padding: '4px 12px',
-                        borderRadius: '12px',
-                        fontSize: '0.75rem',
-                        cursor: 'pointer'
-                    }}>Connect</button>
+                    <button
+                        onClick={() => handleConnect(candidate)}
+                        style={{
+                            marginTop: '0.5rem',
+                            background: 'rgba(59, 130, 246, 0.2)',
+                            color: '#60a5fa',
+                            border: '1px solid rgba(59, 130, 246, 0.3)',
+                            padding: '4px 12px',
+                            borderRadius: '12px',
+                            fontSize: '0.75rem',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={e => { e.target.style.background = 'rgba(59, 130, 246, 0.4)'; }}
+                        onMouseLeave={e => { e.target.style.background = 'rgba(59, 130, 246, 0.2)'; }}
+                    >
+                        Connect →
+                    </button>
                 </div>
             ))}
         </>

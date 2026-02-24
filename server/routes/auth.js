@@ -246,4 +246,29 @@ router.get('/github/url', (req, res) => {
     res.json({ url: `https://github.com/login/oauth/authorize?${params}` });
 });
 
+// Update profile
+router.put('/profile', authenticate, async (req, res) => {
+    try {
+        const { name } = req.body;
+        if (!name || !name.trim()) {
+            return res.status(400).json({ error: 'Name is required' });
+        }
+
+        req.user.name = name.trim();
+        await req.user.save();
+
+        res.json({
+            user: {
+                id: req.user._id,
+                email: req.user.email,
+                name: req.user.name,
+                avatar: req.user.avatar,
+                organization: req.user.organization
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 export default router;
