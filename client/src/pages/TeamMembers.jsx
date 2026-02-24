@@ -7,8 +7,10 @@ import Spotlight from '../components/Spotlight';
 import { useAuth } from '../context/AuthContext';
 import './TeamMembers.css';
 
-const CandidatesList = ({ orgId }) => {
+const CandidatesList = ({ orgId, organization }) => {
     const [candidates, setCandidates] = useState([]);
+    const [invitingId, setInvitingId] = useState(null);
+    const [invitedIds, setInvitedIds] = useState(new Set());
 
     useEffect(() => {
         if (!orgId) return;
@@ -26,60 +28,87 @@ const CandidatesList = ({ orgId }) => {
 
     if (candidates.length === 0) return null;
 
-    const handleConnect = (candidate) => {
-        // Open mailto link or external profile
-        if (candidate.profileUrl) {
-            window.open(candidate.profileUrl, '_blank', 'noopener,noreferrer');
-        } else if (candidate.email) {
-            window.open(`mailto:${candidate.email}?subject=Symphony Team Invitation&body=Hi ${candidate.name},%0A%0AWe'd love to have you on our team! Let's connect.`, '_blank');
+    const handleConnect = async (candidate) => {
+        setInvitingId(candidate._id);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/organizations/${orgId}/members/invite`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: candidate.email, role: 'member' })
+            });
+            if (res.ok) {
+                setInvitedIds(prev => new Set([...prev, candidate._id]));
+            } else {
+                const data = await res.json();
+                alert(data.error || 'Failed to send invitation');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Failed to send invitation');
+        } finally {
+            setInvitingId(null);
         }
     };
 
     return (
         <>
-            {candidates.map(candidate => (
-                <div key={candidate._id} style={{
-                    minWidth: '200px',
-                    background: '#222',
-                    padding: '1rem',
-                    borderRadius: '12px',
-                    border: '1px solid #333',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                }}>
-                    <img src={candidate.avatar} alt={candidate.name} style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
-                    <div style={{ textAlign: 'center' }}>
-                        <h4 style={{ color: '#fff', fontSize: '0.9rem', margin: 0 }}>{candidate.name}</h4>
-                        <span style={{ color: '#888', fontSize: '0.75rem' }}>Open to Work</span>
-                    </div>
-                    <button
-                        onClick={() => handleConnect(candidate)}
+            {candidates.map(candidate => {
+                const isInvited = invitedIds.has(candidate._id);
+                const isInviting = invitingId === candidate._id;
+                return (
+                    <motion.div
+                        key={candidate._id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        whileHover={{ y: -3 }}
                         style={{
-                            marginTop: '0.5rem',
-                            background: 'rgba(59, 130, 246, 0.2)',
-                            color: '#60a5fa',
-                            border: '1px solid rgba(59, 130, 246, 0.3)',
-                            padding: '4px 12px',
+                            minWidth: '200px',
+                            background: 'var(--bg-card)',
+                            padding: '1rem',
                             borderRadius: '12px',
-                            fontSize: '0.75rem',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
+                            border: '1px solid var(--border-color)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            transition: 'border-color 0.2s'
                         }}
-                        onMouseEnter={e => { e.target.style.background = 'rgba(59, 130, 246, 0.4)'; }}
-                        onMouseLeave={e => { e.target.style.background = 'rgba(59, 130, 246, 0.2)'; }}
                     >
-                        Connect →
-                    </button>
-                </div>
-            ))}
+                        <img src={candidate.avatar} alt={candidate.name} style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
+                        <div style={{ textAlign: 'center' }}>
+                            <h4 style={{ color: 'var(--text-primary)', fontSize: '0.9rem', margin: 0 }}>{candidate.name}</h4>
+                            <span style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>Open to Work</span>
+                        </div>
+                        <button
+                            onClick={() => !isInvited && handleConnect(candidate)}
+                            disabled={isInvited || isInviting}
+                            style={{
+                                marginTop: '0.5rem',
+                                background: isInvited ? 'rgba(34, 197, 94, 0.2)' : 'rgba(59, 130, 246, 0.2)',
+                                color: isInvited ? '#22c55e' : '#60a5fa',
+                                border: isInvited ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(59, 130, 246, 0.3)',
+                                padding: '4px 12px',
+                                borderRadius: '12px',
+                                fontSize: '0.75rem',
+                                cursor: isInvited ? 'default' : 'pointer',
+                                transition: 'all 0.2s',
+                                opacity: isInviting ? 0.6 : 1
+                            }}
+                        >
+                            {isInvited ? '✓ Invited' : isInviting ? 'Sending...' : 'Invite to Team →'}
+                        </button>
+                    </motion.div>
+                );
+            })}
         </>
     );
 };
 
 function TeamMembers() {
-    console.log("Rendering TeamMembers, useAuth:", useAuth);
     const [members, setMembers] = useState([]);
     const [invitations, setInvitations] = useState([]);
     const [organization, setOrganization] = useState(null);
@@ -99,44 +128,28 @@ function TeamMembers() {
     const fetchData = async () => {
         try {
             const token = localStorage.getItem('token');
-            console.log('Fetching organization data...');
 
-            //Get organization
             const orgRes = await fetch(`${import.meta.env.VITE_API_URL}/organizations/current`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
-            console.log('Organization response status:', orgRes.status);
-
             if (!orgRes.ok) {
-                const errorText = await orgRes.text();
-                console.error('Failed to fetch organization:', errorText);
                 navigate('/dashboard');
                 return;
             }
 
             const orgData = await orgRes.json();
-            console.log('Organization data:', orgData);
             setOrganization(orgData);
 
-            // Get members
-            console.log('Fetching members...');
             const membersRes = await fetch(
                 `${import.meta.env.VITE_API_URL}/organizations/${orgData._id}/members`,
-                {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                }
+                { headers: { 'Authorization': `Bearer ${token}` } }
             );
-
-            console.log('Members response status:', membersRes.status);
 
             if (membersRes.ok) {
                 const membersData = await membersRes.json();
-                console.log('Members data:', membersData);
                 setMembers(membersData);
             } else {
-                const errorText = await membersRes.text();
-                console.error('Failed to fetch members:', errorText);
                 setError('Failed to load team members. You may need to run the migration script.');
             }
 
@@ -175,7 +188,7 @@ function TeamMembers() {
             setInviteEmail('');
             setInviteRole('member');
             alert('Invitation sent successfully!');
-            fetchData(); // Refresh
+            fetchData();
         } catch (err) {
             setError(err.message);
         }
@@ -199,7 +212,7 @@ function TeamMembers() {
                 throw new Error(data.error || 'Failed to remove member');
             }
 
-            fetchData(); // Refresh
+            fetchData();
         } catch (err) {
             setError(err.message);
         }
@@ -225,7 +238,7 @@ function TeamMembers() {
                 throw new Error(data.error || 'Failed to update role');
             }
 
-            fetchData(); // Refresh
+            fetchData();
         } catch (err) {
             setError(err.message);
         }
@@ -274,9 +287,6 @@ function TeamMembers() {
                         + Invite Member
                     </AnimatedButton>
                 )}
-
-
-                {/* ... header ... */}
             </div>
 
             {
@@ -291,17 +301,17 @@ function TeamMembers() {
                 )
             }
 
-            {/* Suggested Candidates (From External App/API) */}
+            {/* Suggested Candidates */}
             <div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-                <h3 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <h3 style={{ color: 'var(--text-primary)', fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" /><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                    Suggested Candidates (from External Network)
+                    Suggested Candidates
                 </h3>
                 <motion.div
                     layout
                     style={{ display: 'flex', gap: '1rem', overflowX: 'auto', paddingBottom: '1rem' }}
                 >
-                    <CandidatesList orgId={organization?._id} />
+                    <CandidatesList orgId={organization?._id} organization={organization} />
                 </motion.div>
             </div>
 
@@ -316,7 +326,7 @@ function TeamMembers() {
                         <h2>No Team Members Found</h2>
                         <p>Your organization needs to be migrated to the new team system.</p>
                         <p><strong>Run this in the browser console (F12):</strong></p>
-                        <pre style={{ background: '#2a2a2a', padding: '1rem', borderRadius: '8px', overflowX: 'auto', fontSize: '0.85rem' }}>
+                        <pre style={{ background: 'var(--bg-tertiary)', padding: '1rem', borderRadius: '8px', overflowX: 'auto', fontSize: '0.85rem', color: 'var(--text-primary)' }}>
                             {`fetch('${import.meta.env.VITE_API_URL}/organizations/migrate-members', {
   method: 'POST',
   headers: {
@@ -328,7 +338,7 @@ function TeamMembers() {
   window.location.reload();
 });`}
                         </pre>
-                        <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>After running this,the page will refresh and show your team!</p>
+                        <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>After running this, the page will refresh and show your team!</p>
                     </motion.div>
                 ) : (
                     <motion.div

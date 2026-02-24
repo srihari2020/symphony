@@ -79,7 +79,7 @@ export default function ProjectFiles({ projectId }) {
     };
 
     if (loading) {
-        return <div style={{ padding: '2rem', textAlign: 'center', color: '#555' }}>Loading files...</div>;
+        return <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-tertiary)' }}>Loading files...</div>;
     }
 
     return (
@@ -90,11 +90,11 @@ export default function ProjectFiles({ projectId }) {
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
-                animate={{ borderColor: dragOver ? '#6366f1' : 'rgba(255,255,255,0.08)' }}
+                animate={{ borderColor: dragOver ? '#6366f1' : 'var(--border-color)' }}
                 style={{
-                    border: '2px dashed', borderColor: 'rgba(255,255,255,0.08)',
+                    border: '2px dashed', borderColor: 'var(--border-color)',
                     borderRadius: '16px', padding: '2rem', textAlign: 'center',
-                    cursor: 'pointer', background: dragOver ? 'rgba(99,102,241,0.05)' : 'rgba(255,255,255,0.01)',
+                    cursor: 'pointer', background: dragOver ? 'rgba(99,102,241,0.05)' : 'var(--bg-secondary)',
                     transition: 'background 0.2s', marginBottom: '1.5rem',
                 }}
             >
@@ -113,15 +113,15 @@ export default function ProjectFiles({ projectId }) {
                 ) : (
                     <>
                         <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📁</div>
-                        <div style={{ color: '#a0a0b0', fontSize: '0.85rem' }}>Drop files here or click to upload</div>
-                        <div style={{ color: '#555', fontSize: '0.72rem', marginTop: '0.25rem' }}>Max 10MB per file</div>
+                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Drop files here or click to upload</div>
+                        <div style={{ color: 'var(--text-tertiary)', fontSize: '0.72rem', marginTop: '0.25rem' }}>Max 10MB per file</div>
                     </>
                 )}
             </motion.div>
 
             {/* File grid */}
             {files.length === 0 ? (
-                <div style={{ textAlign: 'center', color: '#555', padding: '2rem', fontSize: '0.85rem' }}>
+                <div style={{ textAlign: 'center', color: 'var(--text-tertiary)', padding: '2rem', fontSize: '0.85rem' }}>
                     No files uploaded yet.
                 </div>
             ) : (
@@ -136,12 +136,12 @@ export default function ProjectFiles({ projectId }) {
                                 whileHover={{ y: -4 }}
                                 transition={{ delay: i * 0.05 }}
                                 style={{
-                                    background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
+                                    background: 'var(--bg-card)', border: '1px solid var(--border-color)',
                                     borderRadius: '14px', overflow: 'hidden',
                                 }}
                             >
                                 {/* Preview */}
-                                <div style={{ height: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.2)', overflow: 'hidden' }}>
+                                <div style={{ height: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-secondary)', overflow: 'hidden' }}>
                                     {isImage(file.type) ? (
                                         <img src={file.url} alt={file.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                     ) : (
@@ -149,10 +149,10 @@ export default function ProjectFiles({ projectId }) {
                                     )}
                                 </div>
                                 <div style={{ padding: '0.75rem' }}>
-                                    <div style={{ fontSize: '0.8rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    <div style={{ fontSize: '0.8rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-primary)' }}>
                                         {file.name}
                                     </div>
-                                    <div style={{ fontSize: '0.7rem', color: '#555', marginTop: '0.25rem' }}>
+                                    <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', marginTop: '0.25rem' }}>
                                         {formatSize(file.size)} • {file.uploadedBy?.name || 'Unknown'}
                                     </div>
                                     <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>

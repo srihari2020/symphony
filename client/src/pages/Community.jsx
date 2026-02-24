@@ -29,11 +29,15 @@ const PostCard = ({ post, onLike, onComment, onDeleteComment, onDeletePost }) =>
             animate={{ opacity: 1, y: 0 }}
             className="post-card"
             style={{
-                background: isExternal ? 'linear-gradient(145deg, #1e1e24 0%, #1a1a20 100%)' : '#1e1e24',
+                background: isExternal
+                    ? 'linear-gradient(145deg, var(--bg-card) 0%, var(--bg-secondary) 100%)'
+                    : 'var(--bg-card)',
                 borderRadius: '16px',
                 padding: '1.5rem',
                 marginBottom: '1rem',
-                border: isExternal ? '1px solid rgba(45, 212, 191, 0.2)' : '1px solid rgba(255, 255, 255, 0.05)',
+                border: isExternal
+                    ? '1px solid rgba(45, 212, 191, 0.2)'
+                    : '1px solid var(--border-color)',
                 position: 'relative',
                 overflow: 'hidden'
             }}
@@ -71,37 +75,43 @@ const PostCard = ({ post, onLike, onComment, onDeleteComment, onDeletePost }) =>
                         </div>
                     )}
                     <div>
-                        <h4 style={{ margin: 0, color: 'white' }}>{post.author?.name || 'Unknown User'}</h4>
-                        <span style={{ fontSize: '0.8rem', color: '#666' }}>
+                        <h4 style={{ margin: 0, color: 'var(--text-primary)' }}>{post.author?.name || 'Unknown User'}</h4>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
                             {new Date(post.createdAt).toLocaleDateString()} • {post.type === 'general' ? 'Post' : (post.type || 'general').replace('_', ' ')}
                         </span>
                     </div>
                 </div>
                 {isOwnPost && (
-                    <button
+                    <motion.button
                         onClick={() => { if (confirm('Delete this post?')) onDeletePost(post._id); }}
                         title="Delete post"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
                         style={{
-                            background: 'transparent',
-                            border: 'none',
-                            color: '#555',
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                            color: '#ef4444',
                             cursor: 'pointer',
-                            padding: '4px 8px',
-                            borderRadius: '6px',
-                            transition: 'color 0.2s'
+                            padding: '6px 10px',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.4rem',
+                            fontSize: '0.75rem',
+                            fontWeight: 500,
+                            transition: 'all 0.2s'
                         }}
-                        onMouseEnter={e => e.target.style.color = '#ef4444'}
-                        onMouseLeave={e => e.target.style.color = '#555'}
                     >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none' }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none' }}>
                             <path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
                             <line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>
                         </svg>
-                    </button>
+                        Delete
+                    </motion.button>
                 )}
             </div>
 
-            <p style={{ color: '#ccc', lineHeight: '1.6', fontSize: '1rem', marginBottom: '1.5rem' }}>
+            <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6', fontSize: '1rem', marginBottom: '1.5rem' }}>
                 {post.content}
             </p>
 
@@ -121,13 +131,13 @@ const PostCard = ({ post, onLike, onComment, onDeleteComment, onDeletePost }) =>
                 </div>
             )}
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '1rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem', flexWrap: 'wrap' }}>
                 <button
                     onClick={() => !isExternal && onLike(post._id)}
                     style={{
                         background: 'transparent',
                         border: 'none',
-                        color: isLiked ? '#ef4444' : '#888',
+                        color: isLiked ? '#ef4444' : 'var(--text-tertiary)',
                         cursor: isExternal ? 'default' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -146,7 +156,7 @@ const PostCard = ({ post, onLike, onComment, onDeleteComment, onDeletePost }) =>
                     style={{
                         background: 'transparent',
                         border: 'none',
-                        color: showCommentInput ? '#2dd4bf' : '#888',
+                        color: showCommentInput ? '#2dd4bf' : 'var(--text-tertiary)',
                         cursor: isExternal ? 'default' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -178,11 +188,11 @@ const PostCard = ({ post, onLike, onComment, onDeleteComment, onDeletePost }) =>
                             onKeyDown={(e) => e.key === 'Enter' && handleSubmitComment()}
                             style={{
                                 flex: 1,
-                                background: 'rgba(0,0,0,0.3)',
-                                border: '1px solid #333',
+                                background: 'var(--bg-tertiary)',
+                                border: '1px solid var(--border-color)',
                                 borderRadius: '8px',
                                 padding: '0.5rem 1rem',
-                                color: 'white',
+                                color: 'var(--text-primary)',
                                 fontSize: '0.9rem'
                             }}
                         />
@@ -206,7 +216,7 @@ const PostCard = ({ post, onLike, onComment, onDeleteComment, onDeletePost }) =>
 
             {/* Existing Comments */}
             {Array.isArray(post.comments) && post.comments.length > 0 && !isExternal && (
-                <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.75rem' }}>
+                <div style={{ marginTop: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem' }}>
                     {post.comments.slice(0, 3).map((comment, i) => {
                         const isOwnComment = user && comment.author && (
                             comment.author._id === user._id || comment.author === user._id
@@ -215,16 +225,16 @@ const PostCard = ({ post, onLike, onComment, onDeleteComment, onDeletePost }) =>
                             <div key={comment._id || i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'flex-start' }}>
                                 <div style={{
                                     width: '24px', height: '24px', borderRadius: '50%',
-                                    background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    fontSize: '0.65rem', color: '#aaa', flexShrink: 0
+                                    background: 'var(--bg-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    fontSize: '0.65rem', color: 'var(--text-secondary)', flexShrink: 0
                                 }}>
                                     {comment.author?.name?.[0] || 'U'}
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                    <span style={{ color: '#aaa', fontSize: '0.8rem', fontWeight: 600 }}>
+                                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 600 }}>
                                         {comment.author?.name || 'User'}
                                     </span>
-                                    <p style={{ color: '#999', fontSize: '0.85rem', margin: '2px 0 0 0' }}>
+                                    <p style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem', margin: '2px 0 0 0' }}>
                                         {comment.content}
                                     </p>
                                 </div>
@@ -235,7 +245,7 @@ const PostCard = ({ post, onLike, onComment, onDeleteComment, onDeletePost }) =>
                                         style={{
                                             background: 'transparent',
                                             border: 'none',
-                                            color: '#555',
+                                            color: 'var(--text-tertiary)',
                                             cursor: 'pointer',
                                             padding: '2px 6px',
                                             fontSize: '0.75rem',
@@ -243,7 +253,7 @@ const PostCard = ({ post, onLike, onComment, onDeleteComment, onDeletePost }) =>
                                             transition: 'color 0.2s'
                                         }}
                                         onMouseEnter={e => e.target.style.color = '#ef4444'}
-                                        onMouseLeave={e => e.target.style.color = '#555'}
+                                        onMouseLeave={e => e.target.style.color = ''}
                                     >
                                         ✕
                                     </button>
@@ -252,7 +262,7 @@ const PostCard = ({ post, onLike, onComment, onDeleteComment, onDeletePost }) =>
                         );
                     })}
                     {post.comments.length > 3 && (
-                        <span style={{ color: '#666', fontSize: '0.8rem' }}>
+                        <span style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>
                             +{post.comments.length - 3} more comments
                         </span>
                     )}
@@ -268,13 +278,14 @@ const Community = () => {
     const [newPost, setNewPost] = useState('');
     const [filter, setFilter] = useState('all');
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState(null);
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-    const fetchPosts = async () => {
+    const fetchPosts = async (isRefresh = false) => {
         if (!token) return;
-        setLoading(true);
+        if (isRefresh) setRefreshing(true); else setLoading(true);
         setError(null);
         try {
             const res = await fetch(`${API_URL}/posts`, {
@@ -300,6 +311,7 @@ const Community = () => {
             setError(err.message);
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
     };
 
@@ -331,7 +343,6 @@ const Community = () => {
             }
 
             setNewPost('');
-            // Re-fetch all posts to get the properly populated new post
             await fetchPosts();
         } catch (err) {
             console.error('Error creating post:', err);
@@ -340,7 +351,6 @@ const Community = () => {
     };
 
     const handleLike = async (postId) => {
-        // Don't attempt to like external posts (non-MongoDB IDs)
         if (!postId || typeof postId !== 'string' || postId.startsWith('devto-') || postId.startsWith('mock-')) return;
 
         try {
@@ -422,20 +432,22 @@ const Community = () => {
     const filteredPosts = filter === 'all' ? posts : posts.filter(p => p.type === filter);
 
     return (
-        <div className="community-page" style={{ maxWidth: '800px', margin: '0 auto', color: '#fff' }}>
+        <div className="community-page" style={{ maxWidth: '800px', margin: '0 auto', color: 'var(--text-primary)' }}>
             <div className="page-header" style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
                 <SvgBackground variant="teal" opacity={0.03} />
                 <div>
                     <h1 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Community Hub</h1>
-                    <p style={{ color: '#888' }}>Connect with others, find teams, and share your journey.</p>
+                    <p style={{ color: 'var(--text-tertiary)' }}>Connect with others, find teams, and share your journey.</p>
                 </div>
                 {!loading && (
-                    <button
-                        onClick={fetchPosts}
+                    <motion.button
+                        onClick={() => fetchPosts(true)}
+                        animate={refreshing ? { rotate: 360 } : { rotate: 0 }}
+                        transition={refreshing ? { duration: 1, repeat: Infinity, ease: 'linear' } : {}}
                         style={{
-                            background: 'rgba(255,255,255,0.1)',
-                            border: 'none',
-                            color: '#fff',
+                            background: 'var(--bg-hover)',
+                            border: '1px solid var(--border-color)',
+                            color: refreshing ? '#2dd4bf' : 'var(--text-primary)',
                             padding: '0.5rem',
                             borderRadius: '50%',
                             cursor: 'pointer',
@@ -450,23 +462,23 @@ const Community = () => {
                             <path d="M1 20v-6h6"></path>
                             <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                         </svg>
-                    </button>
+                    </motion.button>
                 )}
             </div>
 
             {/* Create Post */}
-            <div style={{ marginBottom: '2rem', background: '#1e1e24', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div style={{ marginBottom: '2rem', background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
                 <textarea
                     value={newPost}
                     onChange={(e) => setNewPost(e.target.value)}
                     placeholder="Share something with the community..."
                     style={{
                         width: '100%',
-                        background: 'rgba(0,0,0,0.2)',
-                        border: '1px solid #333',
+                        background: 'var(--bg-tertiary)',
+                        border: '1px solid var(--border-color)',
                         borderRadius: '8px',
                         padding: '1rem',
-                        color: 'white',
+                        color: 'var(--text-primary)',
                         minHeight: '100px',
                         marginBottom: '1rem',
                         resize: 'vertical',
@@ -487,9 +499,9 @@ const Community = () => {
                         key={f}
                         onClick={() => setFilter(f)}
                         style={{
-                            background: filter === f ? 'rgba(45, 212, 191, 0.2)' : 'rgba(255,255,255,0.05)',
-                            color: filter === f ? '#2dd4bf' : '#888',
-                            border: filter === f ? '1px solid rgba(45, 212, 191, 0.4)' : '1px solid transparent',
+                            background: filter === f ? 'rgba(45, 212, 191, 0.2)' : 'var(--bg-hover)',
+                            color: filter === f ? '#2dd4bf' : 'var(--text-tertiary)',
+                            border: filter === f ? '1px solid rgba(45, 212, 191, 0.4)' : '1px solid var(--border-color)',
                             padding: '0.5rem 1rem',
                             borderRadius: '20px',
                             cursor: 'pointer',
@@ -509,9 +521,9 @@ const Community = () => {
                 <div style={{ textAlign: 'center', padding: '3rem', color: '#ef4444' }}>
                     <div style={{ marginBottom: '1rem', fontSize: '2rem' }}>⚠️</div>
                     <h3>Failed to load community feed</h3>
-                    <p style={{ color: '#ccc', marginBottom: '1rem' }}>{error}</p>
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>{error}</p>
                     <button
-                        onClick={fetchPosts}
+                        onClick={() => fetchPosts()}
                         style={{
                             background: 'rgba(239, 68, 68, 0.1)',
                             border: '1px solid rgba(239, 68, 68, 0.5)',
@@ -536,18 +548,18 @@ const Community = () => {
                         <div style={{
                             textAlign: 'center',
                             padding: '4rem 2rem',
-                            color: '#666',
-                            background: 'rgba(255,255,255,0.02)',
+                            color: 'var(--text-tertiary)',
+                            background: 'var(--bg-secondary)',
                             borderRadius: '16px',
-                            border: '1px dashed rgba(255,255,255,0.1)'
+                            border: '1px dashed var(--border-color)'
                         }}>
                             <div style={{ marginBottom: '1rem', fontSize: '2rem' }}>📭</div>
-                            <h3 style={{ color: '#fff', marginBottom: '0.5rem' }}>No posts found</h3>
+                            <h3 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>No posts found</h3>
                             <p style={{ maxWidth: '400px', margin: '0 auto 1.5rem' }}>
                                 The community feed is currently empty. Be the first to start a conversation or check back later!
                             </p>
                             <button
-                                onClick={fetchPosts}
+                                onClick={() => fetchPosts()}
                                 style={{
                                     background: 'transparent',
                                     border: '1px solid rgba(45, 212, 191, 0.5)',

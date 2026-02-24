@@ -51,14 +51,14 @@ export default function AiAssistant({ projectId, projectName, onClose, onTasksGe
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             style={{
                 position: 'fixed', top: 0, right: 0, bottom: 0, width: '400px', maxWidth: '100vw',
-                background: '#12121a', borderLeft: '1px solid rgba(255,255,255,0.08)',
+                background: 'var(--bg-primary)', borderLeft: '1px solid var(--border-color)',
                 display: 'flex', flexDirection: 'column', zIndex: 1000,
-                boxShadow: '-10px 0 40px rgba(0,0,0,0.5)',
+                boxShadow: 'var(--shadow-lg)',
             }}
         >
             {/* Header */}
             <div style={{
-                padding: '1rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.06)',
+                padding: '1rem 1.25rem', borderBottom: '1px solid var(--border-color)',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -70,7 +70,7 @@ export default function AiAssistant({ projectId, projectName, onClose, onTasksGe
                         🤖
                     </motion.div>
                     <div>
-                        <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>Symphony AI</div>
+                        <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)' }}>Symphony AI</div>
                         <div style={{ fontSize: '0.7rem', color: '#6366f1' }}>{mode === 'generate' ? 'Task Generator' : 'Chat Mode'}</div>
                     </div>
                 </div>
@@ -78,8 +78,8 @@ export default function AiAssistant({ projectId, projectName, onClose, onTasksGe
                     <button
                         onClick={() => setMode(mode === 'chat' ? 'generate' : 'chat')}
                         style={{
-                            background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                            borderRadius: '8px', padding: '0.4rem 0.7rem', color: '#a0a0b0', cursor: 'pointer', fontSize: '0.72rem',
+                            background: 'var(--bg-hover)', border: '1px solid var(--border-color)',
+                            borderRadius: '8px', padding: '0.4rem 0.7rem', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.72rem',
                         }}
                     >
                         {mode === 'chat' ? '✨ Generate' : '💬 Chat'}
@@ -87,8 +87,8 @@ export default function AiAssistant({ projectId, projectName, onClose, onTasksGe
                     <button
                         onClick={onClose}
                         style={{
-                            background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                            borderRadius: '8px', padding: '0.4rem 0.7rem', color: '#a0a0b0', cursor: 'pointer', fontSize: '0.9rem',
+                            background: 'var(--bg-hover)', border: '1px solid var(--border-color)',
+                            borderRadius: '8px', padding: '0.4rem 0.7rem', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.9rem',
                         }}
                     >✕</button>
                 </div>
@@ -104,9 +104,10 @@ export default function AiAssistant({ projectId, projectName, onClose, onTasksGe
                         style={{
                             alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
                             maxWidth: '85%', padding: '0.8rem 1rem', borderRadius: '16px',
-                            background: msg.role === 'user' ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : 'rgba(255,255,255,0.04)',
-                            border: msg.role === 'user' ? 'none' : '1px solid rgba(255,255,255,0.06)',
-                            fontSize: '0.85rem', lineHeight: 1.6, color: '#e0e0e0',
+                            background: msg.role === 'user' ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : 'var(--bg-hover)',
+                            border: msg.role === 'user' ? 'none' : '1px solid var(--border-color)',
+                            fontSize: '0.85rem', lineHeight: 1.6,
+                            color: msg.role === 'user' ? 'white' : 'var(--text-primary)',
                             whiteSpace: 'pre-wrap', wordBreak: 'break-word',
                         }}
                     >
@@ -129,9 +130,9 @@ export default function AiAssistant({ projectId, projectName, onClose, onTasksGe
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        style={{ alignSelf: 'flex-start', padding: '0.8rem 1rem', background: 'rgba(255,255,255,0.04)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}
+                        style={{ alignSelf: 'flex-start', padding: '0.8rem 1rem', background: 'var(--bg-hover)', borderRadius: '16px', border: '1px solid var(--border-color)' }}
                     >
-                        <motion.span animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }} style={{ fontSize: '0.85rem', color: '#a0a0b0' }}>
+                        <motion.span animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }} style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                             Thinking...
                         </motion.span>
                     </motion.div>
@@ -140,10 +141,10 @@ export default function AiAssistant({ projectId, projectName, onClose, onTasksGe
             </div>
 
             {/* Input */}
-            <div style={{ padding: '1rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ padding: '1rem', borderTop: '1px solid var(--border-color)' }}>
                 <div style={{
-                    display: 'flex', gap: '0.5rem', background: 'rgba(255,255,255,0.03)',
-                    borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)', padding: '0.5rem',
+                    display: 'flex', gap: '0.5rem', background: 'var(--bg-secondary)',
+                    borderRadius: '14px', border: '1px solid var(--border-color)', padding: '0.5rem',
                 }}>
                     <input
                         value={input}
@@ -152,14 +153,14 @@ export default function AiAssistant({ projectId, projectName, onClose, onTasksGe
                         placeholder={mode === 'generate' ? 'Describe your project or feature...' : 'Ask me anything...'}
                         style={{
                             flex: 1, background: 'transparent', border: 'none', outline: 'none',
-                            color: '#e0e0e0', fontSize: '0.85rem', padding: '0.4rem',
+                            color: 'var(--text-primary)', fontSize: '0.85rem', padding: '0.4rem',
                         }}
                     />
                     <button
                         onClick={sendMessage}
                         disabled={loading || !input.trim()}
                         style={{
-                            background: loading ? '#333' : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                            background: loading ? 'var(--bg-hover)' : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
                             border: 'none', borderRadius: '10px', padding: '0.5rem 1rem',
                             color: 'white', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: 600, fontSize: '0.8rem',
                         }}

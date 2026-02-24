@@ -82,7 +82,7 @@ export default function ProjectDetail() {
                 background: 'transparent',
                 border: 'none',
                 padding: '0.75rem 1.5rem',
-                color: activeTab === id ? '#fff' : '#a0a0b0',
+                color: activeTab === id ? 'var(--text-primary)' : 'var(--text-secondary)',
                 cursor: 'pointer',
                 fontSize: '0.95rem',
                 fontWeight: 500,
@@ -108,8 +108,8 @@ export default function ProjectDetail() {
                 {label}
                 {count !== undefined && (
                     <span style={{
-                        background: activeTab === id ? '#2dd4bf' : 'rgba(255,255,255,0.1)',
-                        color: activeTab === id ? '#0f0f14' : '#a0a0b0',
+                        background: activeTab === id ? '#2dd4bf' : 'var(--bg-hover)',
+                        color: activeTab === id ? '#0f0f14' : 'var(--text-secondary)',
                         padding: '1px 6px',
                         borderRadius: '10px',
                         fontSize: '0.75rem',
@@ -133,8 +133,8 @@ export default function ProjectDetail() {
             >
                 <header className="page-header" style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                        <div className="breadcrumb" style={{ marginBottom: '0.5rem', color: '#6b6b7b', fontSize: '0.9rem' }}>
-                            <Link to="/" style={{ color: '#a0a0b0', textDecoration: 'none' }}>Projects</Link>
+                        <div className="breadcrumb" style={{ marginBottom: '0.5rem', color: 'var(--text-tertiary)', fontSize: '0.9rem' }}>
+                            <Link to="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Projects</Link>
                             <span style={{ margin: '0 0.5rem' }}>/</span>
                             <span style={{ color: '#2dd4bf' }}>{project.name}</span>
                         </div>
@@ -142,7 +142,7 @@ export default function ProjectDetail() {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.1 }}
-                            style={{ fontSize: '2rem', background: 'linear-gradient(135deg, #fff 0%, #a0a0b0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+                            style={{ fontSize: '2rem', color: 'var(--text-primary)' }}
                         >
                             {project.name}
                         </motion.h1>
@@ -167,11 +167,11 @@ export default function ProjectDetail() {
                     display: 'flex',
                     gap: '0.5rem',
                     marginBottom: '2rem',
-                    background: 'rgba(255,255,255,0.02)',
+                    background: 'var(--bg-secondary)',
                     padding: '0.375rem',
                     borderRadius: '16px',
                     width: 'fit-content',
-                    border: '1px solid rgba(255,255,255,0.05)'
+                    border: '1px solid var(--border-color)'
                 }}>
                     <TabButton id="board" label="Board" />
                     <TabButton id="chat" label="💬 Chat" />
@@ -230,7 +230,7 @@ export default function ProjectDetail() {
                                 style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
                             >
                                 {dashboard.pullRequests.length === 0 ? (
-                                    <div className="empty-list" style={{ textAlign: 'center', padding: '4rem', color: '#6b6b7b' }}>No pull requests found</div>
+                                    <div className="empty-list" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-tertiary)' }}>No pull requests found</div>
                                 ) : (
                                     dashboard.pullRequests.map((pr, i) => (
                                         <Spotlight key={pr.id} className="list-item-spotlight">
@@ -263,18 +263,18 @@ export default function ProjectDetail() {
                                                     {pr.state === 'open' ? 'git-pull-request' : 'git-merge'}
                                                 </div>
                                                 <div style={{ flex: 1 }}>
-                                                    <div style={{ fontSize: '1rem', fontWeight: 500, marginBottom: '0.25rem', color: '#fff' }}>
-                                                        {pr.title} <span style={{ color: '#6b6b7b', fontWeight: 400 }}>#{pr.number}</span>
+                                                    <div style={{ fontSize: '1rem', fontWeight: 500, marginBottom: '0.25rem', color: 'var(--text-primary)' }}>
+                                                        {pr.title} <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>#{pr.number}</span>
                                                     </div>
-                                                    <div style={{ fontSize: '0.85rem', color: '#6b6b7b' }}>
-                                                        Opened by <span style={{ color: '#a0a0b0' }}>{pr.user.login}</span> • {formatDate(pr.createdAt)}
+                                                    <div style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>
+                                                        Opened by <span style={{ color: 'var(--text-secondary)' }}>{pr.user.login}</span> • {formatDate(pr.createdAt)}
                                                     </div>
                                                 </div>
                                                 <div style={{
                                                     padding: '0.25rem 0.75rem',
                                                     borderRadius: '20px',
-                                                    backgroundColor: 'rgba(255,255,255,0.05)',
-                                                    border: '1px solid rgba(255,255,255,0.1)',
+                                                    backgroundColor: 'var(--bg-hover)',
+                                                    border: '1px solid var(--border-color)',
                                                     fontSize: '0.8rem'
                                                 }}>
                                                     {pr.state}
@@ -297,7 +297,7 @@ export default function ProjectDetail() {
                                 style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
                             >
                                 {dashboard.commits.length === 0 ? (
-                                    <div className="empty-list" style={{ textAlign: 'center', padding: '4rem', color: '#6b6b7b' }}>No commits found</div>
+                                    <div className="empty-list" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-tertiary)' }}>No commits found</div>
                                 ) : (
                                     dashboard.commits.map((commit, i) => (
                                         <Spotlight key={commit.sha} className="list-item-spotlight">
@@ -330,10 +330,10 @@ export default function ProjectDetail() {
                                                     code
                                                 </div>
                                                 <div>
-                                                    <div style={{ fontSize: '1rem', fontWeight: 500, marginBottom: '0.25rem', color: '#fff', fontFamily: 'monospace' }}>
+                                                    <div style={{ fontSize: '1rem', fontWeight: 500, marginBottom: '0.25rem', color: 'var(--text-primary)', fontFamily: 'monospace' }}>
                                                         {commit.message.split('\n')[0]}
                                                     </div>
-                                                    <div style={{ fontSize: '0.85rem', color: '#6b6b7b' }}>
+                                                    <div style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>
                                                         {commit.author.name} • {formatDate(commit.date)} • <span style={{ fontFamily: 'monospace', color: '#2dd4bf' }}>{commit.sha.substring(0, 7)}</span>
                                                     </div>
                                                 </div>
@@ -355,7 +355,7 @@ export default function ProjectDetail() {
                                 style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
                             >
                                 {dashboard.slackMessages.length === 0 ? (
-                                    <div className="empty-list" style={{ textAlign: 'center', padding: '4rem', color: '#6b6b7b' }}>No messages found</div>
+                                    <div className="empty-list" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-tertiary)' }}>No messages found</div>
                                 ) : (
                                     dashboard.slackMessages.map((msg, i) => (
                                         <Spotlight key={msg.ts} className="list-item-spotlight">
@@ -379,10 +379,10 @@ export default function ProjectDetail() {
                                                 </div>
                                                 <div className="slack-content" style={{ flex: 1 }}>
                                                     <div className="slack-header" style={{ marginBottom: '0.25rem', display: 'flex', justifyContent: 'space-between' }}>
-                                                        <span className="slack-user" style={{ color: '#fff', fontWeight: 500 }}>{msg.user.name}</span>
-                                                        <span className="slack-time" style={{ fontSize: '0.8rem', color: '#6b6b7b' }}>{formatDate(msg.date)}</span>
+                                                        <span className="slack-user" style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{msg.user.name}</span>
+                                                        <span className="slack-time" style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>{formatDate(msg.date)}</span>
                                                     </div>
-                                                    <div className="slack-text" style={{ color: '#a0a0b0', lineHeight: '1.4' }}>{msg.text}</div>
+                                                    <div className="slack-text" style={{ color: 'var(--text-secondary)', lineHeight: '1.4' }}>{msg.text}</div>
                                                 </div>
                                             </div>
                                         </Spotlight>
@@ -394,7 +394,7 @@ export default function ProjectDetail() {
                 </div>
 
                 {dashboard.lastUpdated && activeTab !== 'board' && (
-                    <div className="last-updated" style={{ marginTop: '2rem', textAlign: 'center', color: '#6b6b7b', fontSize: '0.85rem' }}>
+                    <div className="last-updated" style={{ marginTop: '2rem', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>
                         Last refreshed: {dashboard.lastUpdated.prs && formatDate(dashboard.lastUpdated.prs)}
                     </div>
                 )}

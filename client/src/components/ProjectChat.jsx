@@ -104,18 +104,18 @@ export default function ProjectChat({ projectId }) {
 
     if (loading) {
         return (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '300px', color: '#555' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '300px', color: 'var(--text-tertiary)' }}>
                 Loading messages...
             </div>
         );
     }
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '60vh', minHeight: '400px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden', background: 'rgba(255,255,255,0.01)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '60vh', minHeight: '400px', borderRadius: '16px', border: '1px solid var(--border-color)', overflow: 'hidden', background: 'var(--bg-secondary)' }}>
             {/* Messages area */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {messages.length === 0 && (
-                    <div style={{ textAlign: 'center', color: '#555', padding: '3rem', fontSize: '0.9rem' }}>
+                    <div style={{ textAlign: 'center', color: 'var(--text-tertiary)', padding: '3rem', fontSize: '0.9rem' }}>
                         <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>💬</div>
                         No messages yet. Start the conversation!
                     </div>
@@ -136,13 +136,14 @@ export default function ProjectChat({ projectId }) {
                             )}
                             <div style={{
                                 padding: '0.7rem 1rem', borderRadius: own ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-                                background: own ? 'linear-gradient(135deg, #6366f1, #7c3aed)' : 'rgba(255,255,255,0.05)',
-                                border: own ? 'none' : '1px solid rgba(255,255,255,0.06)',
+                                background: own ? 'linear-gradient(135deg, #6366f1, #7c3aed)' : 'var(--bg-card)',
+                                border: own ? 'none' : '1px solid var(--border-color)',
                                 fontSize: '0.85rem', lineHeight: 1.5, wordBreak: 'break-word',
+                                color: own ? 'white' : 'var(--text-primary)',
                             }}>
                                 {msg.content}
                             </div>
-                            <div style={{ fontSize: '0.65rem', color: '#444', marginTop: '0.2rem', textAlign: own ? 'right' : 'left' }}>
+                            <div style={{ fontSize: '0.65rem', color: 'var(--text-tertiary)', marginTop: '0.2rem', textAlign: own ? 'right' : 'left' }}>
                                 {formatTime(msg.createdAt)}
                             </div>
                         </motion.div>
@@ -164,7 +165,7 @@ export default function ProjectChat({ projectId }) {
             </div>
 
             {/* Input */}
-            <div style={{ padding: '0.75rem 1rem', borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.2)' }}>
+            <div style={{ padding: '0.75rem 1rem', borderTop: '1px solid var(--border-color)', background: 'var(--bg-tertiary)' }}>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <input
                         value={input}
@@ -172,15 +173,15 @@ export default function ProjectChat({ projectId }) {
                         onKeyDown={e => e.key === 'Enter' && send()}
                         placeholder="Type a message..."
                         style={{
-                            flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-                            borderRadius: '12px', padding: '0.7rem 1rem', color: '#e0e0e0', outline: 'none', fontSize: '0.85rem',
+                            flex: 1, background: 'var(--bg-card)', border: '1px solid var(--border-color)',
+                            borderRadius: '12px', padding: '0.7rem 1rem', color: 'var(--text-primary)', outline: 'none', fontSize: '0.85rem',
                         }}
                     />
                     <button
                         onClick={send}
                         disabled={sending || !input.trim()}
                         style={{
-                            background: sending ? '#333' : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                            background: sending ? 'var(--bg-hover)' : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
                             border: 'none', borderRadius: '12px', padding: '0.7rem 1.2rem',
                             color: 'white', cursor: sending ? 'not-allowed' : 'pointer', fontWeight: 600, fontSize: '0.9rem',
                         }}
