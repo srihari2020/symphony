@@ -4,7 +4,7 @@ import { getChatMessages, sendChatMessage } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { io } from 'socket.io-client';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
 
 export default function ProjectChat({ projectId }) {
     const { user } = useAuth();

@@ -15,7 +15,9 @@ export const SocketProvider = ({ children }) => {
     // Initialize Socket Connection
     useEffect(() => {
         if (token && user) {
-            const newSocket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+            const socketUrl = apiUrl.replace(/\/api\/?$/, '');
+            const newSocket = io(socketUrl, {
                 auth: { token },
                 withCredentials: true
             });
@@ -52,7 +54,8 @@ export const SocketProvider = ({ children }) => {
     // Fetch initial notifications
     useEffect(() => {
         if (token) {
-            fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/notifications`, {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+            fetch(`${apiUrl}/notifications`, {
                 headers: { Authorization: `Bearer ${token}` }
             })
                 .then(res => res.json())
@@ -68,7 +71,8 @@ export const SocketProvider = ({ children }) => {
 
     const markAsRead = async (id) => {
         try {
-            await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/notifications/${id}/read`, {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+            await fetch(`${apiUrl}/notifications/${id}/read`, {
                 method: 'PUT',
                 headers: { Authorization: `Bearer ${token}` }
             });
