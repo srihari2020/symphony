@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import Logo from './Logo';
 
-import { DashboardIcon, TeamIcon, SettingsIcon, CommunityIcon } from './SidebarIcons';
+import { DashboardIcon, TeamIcon, SettingsIcon, CommunityIcon, AnalyticsIcon } from './SidebarIcons';
 import Magnetic from './Magnetic';
 import NotificationBell from './NotificationBell';
 
@@ -179,6 +179,7 @@ export default function Layout({ children }) {
                     {[
                         { path: '/dashboard', Icon: DashboardIcon, label: 'Dashboard' },
                         { path: '/community', Icon: CommunityIcon, label: 'Community' },
+                        { path: '/analytics', Icon: AnalyticsIcon, label: 'Analytics' },
                         { path: '/team', Icon: TeamIcon, label: 'Team' },
                         { path: '/settings', Icon: SettingsIcon, label: 'Settings' }
                     ].map((item) => (

@@ -46,6 +46,29 @@ export const initSocket = (httpServer) => {
             socket.join(socket.user.organization.toString());
         }
 
+        // === Chat: Join / Leave project rooms ===
+        socket.on('join_project', (projectId) => {
+            socket.join(`project:${projectId}`);
+        });
+
+        socket.on('leave_project', (projectId) => {
+            socket.leave(`project:${projectId}`);
+        });
+
+        // Relay chat messages to project room
+        socket.on('chat_message', (data) => {
+            socket.to(`project:${data.projectId}`).emit('chat_message', data.message);
+        });
+
+        // Typing indicators
+        socket.on('typing_start', (data) => {
+            socket.to(`project:${data.projectId}`).emit('typing_start', { userName: socket.user.name });
+        });
+
+        socket.on('typing_stop', (data) => {
+            socket.to(`project:${data.projectId}`).emit('typing_stop', { userName: socket.user.name });
+        });
+
         socket.on('disconnect', () => {
             console.log(`User disconnected: ${socket.user.name}`);
         });

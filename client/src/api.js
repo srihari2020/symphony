@@ -46,4 +46,25 @@ export const disconnectIntegration = (type) => api.delete(`/integrations/${type}
 export const getGitHubRepos = () => api.get('/integrations/github/repos');
 export const getSlackChannels = () => api.get('/integrations/slack/channels');
 
+// AI
+export const aiChat = (data) => api.post('/ai/chat', data);
+export const aiGenerateTasks = (data) => api.post('/ai/generate-tasks', data);
+
+// Unsplash
+export const searchUnsplash = (q, page = 1) => api.get(`/unsplash/search?q=${encodeURIComponent(q)}&page=${page}`);
+export const randomUnsplash = () => api.get('/unsplash/random');
+
+// Chat
+export const getChatMessages = (projectId, before) => api.get(`/chat/${projectId}/messages${before ? '?before=' + before : ''}`);
+export const sendChatMessage = (projectId, content) => api.post(`/chat/${projectId}/messages`, { content });
+
+// Analytics
+export const getProjectAnalytics = (projectId) => api.get(`/analytics/${projectId}`);
+
+// Files
+export const getProjectFiles = (projectId) => api.get(`/files/${projectId}`);
+export const uploadFile = (formData) => api.post('/files/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const deleteFile = (id) => api.delete(`/files/${id}`);
+
 export default api;
+

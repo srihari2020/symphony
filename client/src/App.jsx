@@ -15,6 +15,7 @@ import Community from './pages/Community';
 import GitHubCallback from './pages/GitHubCallback';
 import SlackCallback from './pages/SlackCallback';
 import GitHubAuthCallback from './pages/GitHubAuthCallback';
+import Analytics from './pages/Analytics';
 import './index.css';
 
 function PrivateRoute({ children }) {
@@ -84,6 +85,7 @@ function App() {
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/team" element={<TeamMembers />} />
                 <Route path="/community" element={<Community />} />
+                <Route path="/analytics" element={<Analytics />} />
                 <Route path="/invitations" element={<PendingInvitations />} />
 
                 {/* Callbacks that need auth but maybe not layout? Keeping in layout for consistency or moving out if needed */}

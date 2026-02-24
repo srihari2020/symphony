@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 
 const projectSchema = new mongoose.Schema({
     name: { type: String, required: true },
+    description: { type: String, default: '' },
+    coverImage: { type: String, default: '' },
     organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true },
     githubRepo: { type: String }, // e.g., "owner/repo"
     slackChannel: { type: String },

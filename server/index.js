@@ -14,6 +14,11 @@ import invitationRoutes from './routes/invitations.js';
 import taskRoutes from './routes/taskRoutes.js';
 import notificationRoutes from './routes/notifications.js'; // Moved to top
 import postRoutes from './routes/posts.js'; // Moved to top
+import aiRoutes from './routes/ai.js';
+import unsplashRoutes from './routes/unsplash.js';
+import chatRoutes from './routes/chat.js';
+import analyticsRoutes from './routes/analytics.js';
+import fileRoutes from './routes/files.js';
 import { startScheduler } from './services/scheduler.js';
 import { initSocket } from './services/socketService.js'; // Moved to top
 
@@ -51,6 +56,11 @@ app.use('/api/invitations', invitationRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/unsplash', unsplashRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/files', fileRoutes);
 
 app.get('/', (req, res) => {
     res.json({ message: 'Symphony API is running', status: 'ok' });

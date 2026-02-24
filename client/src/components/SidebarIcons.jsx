@@ -159,3 +159,35 @@ export const CommunityIcon = ({ isActive }) => (
         />
     </motion.svg>
 );
+
+export const AnalyticsIcon = ({ isActive }) => (
+    <motion.svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        variants={iconVariants}
+        animate={isActive ? 'active' : 'normal'}
+        whileHover="hover"
+    >
+        <motion.path
+            d="M18 20V10"
+            stroke={isActive ? "url(#icon-gradient-teal)" : "currentColor"}
+            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            variants={pathVariants}
+        />
+        <motion.path
+            d="M12 20V4"
+            stroke={isActive ? "url(#icon-gradient-teal)" : "currentColor"}
+            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            variants={pathVariants}
+        />
+        <motion.path
+            d="M6 20V14"
+            stroke={isActive ? "url(#icon-gradient-teal)" : "currentColor"}
+            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            variants={pathVariants}
+        />
+    </motion.svg>
+);
