@@ -89,6 +89,23 @@ router.put('/:id/like', authenticate, async (req, res) => {
     }
 });
 
+// DELETE /api/posts/:id - Delete own post
+router.delete('/:id', authenticate, async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) return res.status(404).json({ error: 'Post not found' });
+
+        if (post.author.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ error: 'Not authorized to delete this post' });
+        }
+
+        await Post.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Post deleted' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // POST /api/posts/:id/comment - Add a comment to a post
 router.post('/:id/comment', authenticate, async (req, res) => {
     try {

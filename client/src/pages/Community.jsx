@@ -4,10 +4,13 @@ import { useAuth } from '../context/AuthContext';
 import AnimatedButton from '../components/AnimatedButton';
 import { ListSkeleton } from '../components/LoadingSkeleton';
 
-const PostCard = ({ post, onLike, onComment, onDeleteComment }) => {
+const PostCard = ({ post, onLike, onComment, onDeleteComment, onDeletePost }) => {
     const { user } = useAuth();
     const isLiked = Array.isArray(post.likes) && post.likes.includes(user?._id);
     const isExternal = !!post.source && post.source !== 'local';
+    const isOwnPost = !isExternal && user && post.author && (
+        post.author._id === user._id || post.author === user._id
+    );
     const [showCommentInput, setShowCommentInput] = useState(false);
     const [commentText, setCommentText] = useState('');
 
@@ -50,27 +53,51 @@ const PostCard = ({ post, onLike, onComment, onDeleteComment }) => {
                 </div>
             )}
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                {post.author?.avatar ? (
-                    <img src={post.author.avatar} alt={post.author?.name || 'User'} style={{
-                        width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover'
-                    }} />
-                ) : (
-                    <div style={{
-                        width: '40px', height: '40px', borderRadius: '50%',
-                        background: 'linear-gradient(135deg, #2dd4bf 0%, #06b6d4 100%)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontWeight: 'bold', color: 'white'
-                    }}>
-                        {post.author?.name?.[0] || 'U'}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    {post.author?.avatar ? (
+                        <img src={post.author.avatar} alt={post.author?.name || 'User'} style={{
+                            width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover'
+                        }} />
+                    ) : (
+                        <div style={{
+                            width: '40px', height: '40px', borderRadius: '50%',
+                            background: 'linear-gradient(135deg, #2dd4bf 0%, #06b6d4 100%)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontWeight: 'bold', color: 'white'
+                        }}>
+                            {post.author?.name?.[0] || 'U'}
+                        </div>
+                    )}
+                    <div>
+                        <h4 style={{ margin: 0, color: 'white' }}>{post.author?.name || 'Unknown User'}</h4>
+                        <span style={{ fontSize: '0.8rem', color: '#666' }}>
+                            {new Date(post.createdAt).toLocaleDateString()} • {post.type === 'general' ? 'Post' : (post.type || 'general').replace('_', ' ')}
+                        </span>
                     </div>
-                )}
-                <div>
-                    <h4 style={{ margin: 0, color: 'white' }}>{post.author?.name || 'Unknown User'}</h4>
-                    <span style={{ fontSize: '0.8rem', color: '#666' }}>
-                        {new Date(post.createdAt).toLocaleDateString()} • {post.type === 'general' ? 'Post' : (post.type || 'general').replace('_', ' ')}
-                    </span>
                 </div>
+                {isOwnPost && (
+                    <button
+                        onClick={() => { if (confirm('Delete this post?')) onDeletePost(post._id); }}
+                        title="Delete post"
+                        style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: '#555',
+                            cursor: 'pointer',
+                            padding: '4px 8px',
+                            borderRadius: '6px',
+                            transition: 'color 0.2s'
+                        }}
+                        onMouseEnter={e => e.target.style.color = '#ef4444'}
+                        onMouseLeave={e => e.target.style.color = '#555'}
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: 'none' }}>
+                            <path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                    </button>
+                )}
             </div>
 
             <p style={{ color: '#ccc', lineHeight: '1.6', fontSize: '1rem', marginBottom: '1.5rem' }}>
@@ -374,6 +401,23 @@ const Community = () => {
         }
     };
 
+    const handleDeletePost = async (postId) => {
+        try {
+            const res = await fetch(`${API_URL}/posts/${postId}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (!res.ok) {
+                throw new Error(`Delete post failed: ${res.status}`);
+            }
+
+            setPosts(posts.filter(p => p._id !== postId));
+        } catch (err) {
+            console.error('Error deleting post:', err);
+        }
+    };
+
     const filteredPosts = filter === 'all' ? posts : posts.filter(p => p.type === filter);
 
     return (
@@ -482,7 +526,7 @@ const Community = () => {
                 <div className="feed">
                     <AnimatePresence>
                         {filteredPosts.map(post => (
-                            <PostCard key={post._id} post={post} onLike={handleLike} onComment={handleComment} onDeleteComment={handleDeleteComment} />
+                            <PostCard key={post._id} post={post} onLike={handleLike} onComment={handleComment} onDeleteComment={handleDeleteComment} onDeletePost={handleDeletePost} />
                         ))}
                     </AnimatePresence>
 
