@@ -117,4 +117,30 @@ router.post('/:id/comment', authenticate, async (req, res) => {
     }
 });
 
+// DELETE /api/posts/:id/comment/:commentId - Delete own comment
+router.delete('/:id/comment/:commentId', authenticate, async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) return res.status(404).json({ error: 'Post not found' });
+
+        const comment = post.comments.id(req.params.commentId);
+        if (!comment) return res.status(404).json({ error: 'Comment not found' });
+
+        // Only comment author can delete
+        if (comment.author.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ error: 'Not authorized to delete this comment' });
+        }
+
+        post.comments.pull(req.params.commentId);
+        await post.save();
+
+        await post.populate('author', 'name email avatar');
+        await post.populate('comments.author', 'name avatar');
+
+        res.json(post);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 export default router;

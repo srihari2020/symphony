@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import AnimatedButton from '../components/AnimatedButton';
 import { ListSkeleton } from '../components/LoadingSkeleton';
 
-const PostCard = ({ post, onLike, onComment }) => {
+const PostCard = ({ post, onLike, onComment, onDeleteComment }) => {
     const { user } = useAuth();
     const isLiked = Array.isArray(post.likes) && post.likes.includes(user?._id);
     const isExternal = !!post.source && post.source !== 'local';
@@ -179,25 +179,50 @@ const PostCard = ({ post, onLike, onComment }) => {
             {/* Existing Comments */}
             {Array.isArray(post.comments) && post.comments.length > 0 && !isExternal && (
                 <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.75rem' }}>
-                    {post.comments.slice(0, 3).map((comment, i) => (
-                        <div key={comment._id || i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'flex-start' }}>
-                            <div style={{
-                                width: '24px', height: '24px', borderRadius: '50%',
-                                background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                fontSize: '0.65rem', color: '#aaa', flexShrink: 0
-                            }}>
-                                {comment.author?.name?.[0] || 'U'}
+                    {post.comments.slice(0, 3).map((comment, i) => {
+                        const isOwnComment = user && comment.author && (
+                            comment.author._id === user._id || comment.author === user._id
+                        );
+                        return (
+                            <div key={comment._id || i} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'flex-start' }}>
+                                <div style={{
+                                    width: '24px', height: '24px', borderRadius: '50%',
+                                    background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    fontSize: '0.65rem', color: '#aaa', flexShrink: 0
+                                }}>
+                                    {comment.author?.name?.[0] || 'U'}
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <span style={{ color: '#aaa', fontSize: '0.8rem', fontWeight: 600 }}>
+                                        {comment.author?.name || 'User'}
+                                    </span>
+                                    <p style={{ color: '#999', fontSize: '0.85rem', margin: '2px 0 0 0' }}>
+                                        {comment.content}
+                                    </p>
+                                </div>
+                                {isOwnComment && comment._id && (
+                                    <button
+                                        onClick={() => onDeleteComment(post._id, comment._id)}
+                                        title="Delete comment"
+                                        style={{
+                                            background: 'transparent',
+                                            border: 'none',
+                                            color: '#555',
+                                            cursor: 'pointer',
+                                            padding: '2px 6px',
+                                            fontSize: '0.75rem',
+                                            borderRadius: '4px',
+                                            transition: 'color 0.2s'
+                                        }}
+                                        onMouseEnter={e => e.target.style.color = '#ef4444'}
+                                        onMouseLeave={e => e.target.style.color = '#555'}
+                                    >
+                                        ✕
+                                    </button>
+                                )}
                             </div>
-                            <div>
-                                <span style={{ color: '#aaa', fontSize: '0.8rem', fontWeight: 600 }}>
-                                    {comment.author?.name || 'User'}
-                                </span>
-                                <p style={{ color: '#999', fontSize: '0.85rem', margin: '2px 0 0 0' }}>
-                                    {comment.content}
-                                </p>
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                     {post.comments.length > 3 && (
                         <span style={{ color: '#666', fontSize: '0.8rem' }}>
                             +{post.comments.length - 3} more comments
@@ -331,6 +356,24 @@ const Community = () => {
         }
     };
 
+    const handleDeleteComment = async (postId, commentId) => {
+        try {
+            const res = await fetch(`${API_URL}/posts/${postId}/comment/${commentId}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (!res.ok) {
+                throw new Error(`Delete comment failed: ${res.status}`);
+            }
+
+            const updatedPost = await res.json();
+            setPosts(posts.map(p => p._id === postId ? updatedPost : p));
+        } catch (err) {
+            console.error('Error deleting comment:', err);
+        }
+    };
+
     const filteredPosts = filter === 'all' ? posts : posts.filter(p => p.type === filter);
 
     return (
@@ -439,7 +482,7 @@ const Community = () => {
                 <div className="feed">
                     <AnimatePresence>
                         {filteredPosts.map(post => (
-                            <PostCard key={post._id} post={post} onLike={handleLike} onComment={handleComment} />
+                            <PostCard key={post._id} post={post} onLike={handleLike} onComment={handleComment} onDeleteComment={handleDeleteComment} />
                         ))}
                     </AnimatePresence>
 
