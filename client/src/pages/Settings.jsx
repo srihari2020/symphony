@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { getIntegrations, getGitHubAuthUrl, getSlackAuthUrl, disconnectIntegration, getCurrentOrg } from '../api';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import AnimatedButton from '../components/AnimatedButton';
 import Spotlight from '../components/Spotlight';
 
 export default function Settings() {
     const { user, logout } = useAuth();
+    const { theme, setTheme } = useTheme();
     const [integrations, setIntegrations] = useState([]);
     const [org, setOrg] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -25,9 +27,8 @@ export default function Settings() {
         digestFrequency: 'daily'
     });
 
-    // Appearance
+    // Appearance (non-theme options)
     const [appearance, setAppearance] = useState({
-        theme: 'dark',
         sidebarCompact: false,
         animationsEnabled: true
     });
@@ -387,14 +388,14 @@ export default function Settings() {
                                 { id: 'dark', label: 'Dark', icon: '🌙', desc: 'Easy on the eyes' },
                                 { id: 'light', label: 'Light', icon: '☀️', desc: 'Classic bright look' },
                                 { id: 'system', label: 'System', icon: '💻', desc: 'Match your OS' }
-                            ].map(theme => (
+                            ].map(t => (
                                 <button
-                                    key={theme.id}
-                                    onClick={() => setAppearance({ ...appearance, theme: theme.id })}
+                                    key={t.id}
+                                    onClick={() => setTheme(t.id)}
                                     style={{
                                         flex: 1,
-                                        background: appearance.theme === theme.id ? 'rgba(45, 212, 191, 0.1)' : 'rgba(255,255,255,0.03)',
-                                        border: appearance.theme === theme.id ? '2px solid rgba(45, 212, 191, 0.5)' : '2px solid rgba(255,255,255,0.08)',
+                                        background: theme === t.id ? 'rgba(45, 212, 191, 0.1)' : 'rgba(255,255,255,0.03)',
+                                        border: theme === t.id ? '2px solid rgba(45, 212, 191, 0.5)' : '2px solid rgba(255,255,255,0.08)',
                                         padding: '1.25rem',
                                         borderRadius: '12px',
                                         cursor: 'pointer',
@@ -402,9 +403,9 @@ export default function Settings() {
                                         transition: 'all 0.2s'
                                     }}
                                 >
-                                    <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{theme.icon}</div>
-                                    <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.9rem' }}>{theme.label}</div>
-                                    <div style={{ color: '#666', fontSize: '0.75rem', marginTop: '0.25rem' }}>{theme.desc}</div>
+                                    <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{t.icon}</div>
+                                    <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.9rem' }}>{t.label}</div>
+                                    <div style={{ color: '#666', fontSize: '0.75rem', marginTop: '0.25rem' }}>{t.desc}</div>
                                 </button>
                             ))}
                         </div>
