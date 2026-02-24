@@ -177,7 +177,7 @@ export default function Layout({ children }) {
             <nav className="sidebar-nav">
                 <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     {[
-                        { path: '/', Icon: DashboardIcon, label: 'Dashboard' },
+                        { path: '/dashboard', Icon: DashboardIcon, label: 'Dashboard' },
                         { path: '/community', Icon: CommunityIcon, label: 'Community' },
                         { path: '/team', Icon: TeamIcon, label: 'Team' },
                         { path: '/settings', Icon: SettingsIcon, label: 'Settings' }

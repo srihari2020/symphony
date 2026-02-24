@@ -21,7 +21,7 @@ export default function GitHubAuthCallback() {
     const handleCallback = async (code) => {
         try {
             await loginWithGitHub(code);
-            navigate('/');
+            navigate('/dashboard');
         } catch (err) {
             setError(err.response?.data?.error || 'GitHub login failed');
         }

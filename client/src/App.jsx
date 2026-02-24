@@ -5,6 +5,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import ProjectDetail from './pages/ProjectDetail';
 import Settings from './pages/Settings';
@@ -23,7 +24,17 @@ function PrivateRoute({ children }) {
     return <div className="loading">Loading...</div>;
   }
 
-  return user ? children : <Navigate to="/login" />;
+  return user ? children : <Navigate to="/" />;
+}
+
+function LandingRoute() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  return user ? <Navigate to="/dashboard" /> : <Landing />;
 }
 
 function PublicRoute({ children }) {
@@ -33,7 +44,7 @@ function PublicRoute({ children }) {
     return <div className="loading">Loading...</div>;
   }
 
-  return user ? <Navigate to="/" /> : children;
+  return user ? <Navigate to="/dashboard" /> : children;
 }
 
 import ScrollToTop from './components/ScrollToTop';
@@ -57,13 +68,18 @@ function App() {
                 <GitHubAuthCallback />
               } />
 
+              {/* Landing page — public intro */}
+              <Route path="/" element={
+                <LandingRoute />
+              } />
+
               {/* Protected Routes with Persistent Layout */}
               <Route element={
                 <PrivateRoute>
                   <Layout><Outlet /></Layout>
                 </PrivateRoute>
               }>
-                <Route path="/" element={<Dashboard />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/project/:id" element={<ProjectDetail />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/team" element={<TeamMembers />} />

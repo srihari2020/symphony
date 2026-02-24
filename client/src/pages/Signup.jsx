@@ -27,7 +27,7 @@ export default function Signup() {
         setLoading(true);
         try {
             await signup(formData.email, formData.password, formData.name, formData.organizationName);
-            navigate('/');
+            navigate('/dashboard');
         } catch (err) {
             setError(err.response?.data?.error || 'Signup failed');
         } finally {
