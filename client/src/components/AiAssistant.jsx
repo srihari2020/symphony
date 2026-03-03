@@ -37,7 +37,8 @@ export default function AiAssistant({ projectId, projectName, onClose, onTasksGe
                 setMessages(prev => [...prev, { role: 'assistant', content: res.data.response }]);
             }
         } catch (err) {
-            setMessages(prev => [...prev, { role: 'assistant', content: '⚠️ Sorry, I couldn\'t process that. Try again!' }]);
+            const serverMsg = err.response?.data?.error;
+            setMessages(prev => [...prev, { role: 'assistant', content: `⚠️ ${serverMsg || 'Sorry, I couldn\'t process that. Please check your connection and try again.'}` }]);
         } finally {
             setLoading(false);
         }
