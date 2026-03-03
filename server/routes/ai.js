@@ -21,6 +21,9 @@ const auth = async (req, res, next) => {
 
 // Initialize Gemini
 const getModel = () => {
+    if (!process.env.GEMINI_API_KEY) {
+        throw new Error('GEMINI_API_KEY is not configured');
+    }
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     return genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 };
@@ -58,7 +61,10 @@ router.post('/chat', auth, async (req, res) => {
         res.json({ response });
     } catch (err) {
         console.error('AI Chat error:', err);
-        res.status(500).json({ error: 'AI service unavailable' });
+        if (err.message === 'GEMINI_API_KEY is not configured') {
+            return res.status(503).json({ error: 'AI service is not configured. Please set up the Gemini API key.' });
+        }
+        res.status(500).json({ error: 'AI service unavailable. Please try again later.' });
     }
 });
 
@@ -84,7 +90,10 @@ router.post('/generate-tasks', auth, async (req, res) => {
         }
     } catch (err) {
         console.error('AI Generate Tasks error:', err);
-        res.status(500).json({ error: 'AI service unavailable' });
+        if (err.message === 'GEMINI_API_KEY is not configured') {
+            return res.status(503).json({ error: 'AI service is not configured. Please set up the Gemini API key.' });
+        }
+        res.status(500).json({ error: 'AI service unavailable. Please try again later.' });
     }
 });
 

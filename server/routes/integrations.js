@@ -32,9 +32,13 @@ router.get('/', authenticate, async (req, res) => {
 
 // GitHub OAuth - Get auth URL
 router.get('/github/auth-url', authenticate, (req, res) => {
+    if (!process.env.GITHUB_CLIENT_ID) {
+        return res.status(503).json({ error: 'GitHub integration is not configured' });
+    }
+    const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/+$/, '');
     const params = new URLSearchParams({
         client_id: process.env.GITHUB_CLIENT_ID,
-        redirect_uri: `${process.env.FRONTEND_URL}/integrations/github/callback`,
+        redirect_uri: `${frontendUrl}/integrations/github/callback`,
         scope: 'repo read:org',
         state: req.user.organization?.toString() || ''
     });
@@ -83,9 +87,13 @@ router.post('/github/callback', authenticate, async (req, res) => {
 
 // Slack OAuth - Get auth URL
 router.get('/slack/auth-url', authenticate, (req, res) => {
+    if (!process.env.SLACK_CLIENT_ID) {
+        return res.status(503).json({ error: 'Slack integration is not configured' });
+    }
+    const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/+$/, '');
     const params = new URLSearchParams({
         client_id: process.env.SLACK_CLIENT_ID,
-        redirect_uri: `${process.env.FRONTEND_URL}/integrations/slack/callback`,
+        redirect_uri: `${frontendUrl}/integrations/slack/callback`,
         scope: 'channels:history,channels:read,users:read',
         state: req.user.organization?.toString() || ''
     });
@@ -101,7 +109,7 @@ router.post('/slack/callback', authenticate, async (req, res) => {
             client_id: process.env.SLACK_CLIENT_ID,
             client_secret: process.env.SLACK_CLIENT_SECRET,
             code,
-            redirect_uri: `${process.env.FRONTEND_URL}/integrations/slack/callback`
+            redirect_uri: `${(process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/+$/, '')}/integrations/slack/callback`
         });
 
         const response = await fetch(`${SLACK_TOKEN_URL}?${params}`, {

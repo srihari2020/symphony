@@ -238,9 +238,14 @@ router.post('/github', async (req, res) => {
 
 // Get GitHub OAuth URL for login
 router.get('/github/url', (req, res) => {
+    const clientId = process.env.GITHUB_LOGIN_CLIENT_ID || process.env.GITHUB_CLIENT_ID;
+    if (!clientId) {
+        return res.status(503).json({ error: 'GitHub OAuth is not configured' });
+    }
+    const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/+$/, '');
     const params = new URLSearchParams({
-        client_id: process.env.GITHUB_LOGIN_CLIENT_ID || process.env.GITHUB_CLIENT_ID,
-        redirect_uri: `${process.env.FRONTEND_URL}/auth/github/callback`,
+        client_id: clientId,
+        redirect_uri: `${frontendUrl}/auth/github/callback`,
         scope: 'user:email'
     });
     res.json({ url: `https://github.com/login/oauth/authorize?${params}` });
@@ -268,6 +273,39 @@ router.put('/profile', authenticate, async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+});
+
+// Change password
+router.put('/change-password', authenticate, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ error: 'Current and new passwords are required' });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({ error: 'New password must be at least 6 characters' });
+        }
+
+        // OAuth users don't have passwords
+        if (req.user.provider !== 'local' && !req.user.password) {
+            return res.status(400).json({ error: 'Cannot change password for OAuth accounts. You signed in with ' + req.user.provider });
+        }
+
+        const isMatch = await req.user.comparePassword(currentPassword);
+        if (!isMatch) {
+            return res.status(401).json({ error: 'Current password is incorrect' });
+        }
+
+        req.user.password = newPassword;
+        await req.user.save();
+
+        res.json({ message: 'Password changed successfully' });
+    } catch (error) {
+        console.error('Change password error:', error);
+        res.status(500).json({ error: 'Failed to change password' });
     }
 });
 
