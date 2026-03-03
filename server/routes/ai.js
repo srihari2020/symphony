@@ -19,15 +19,32 @@ const auth = async (req, res, next) => {
     }
 };
 
-// Initialize Gemini with fallback models
+// Initialize Gemini
 const getModel = () => {
     if (!process.env.GEMINI_API_KEY) {
         throw new Error('GEMINI_API_KEY is not configured');
     }
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    // Try gemini-1.5-flash as it's widely available
-    const modelName = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+    const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash-lite';
     return genAI.getGenerativeModel({ model: modelName });
+};
+
+// Parse user-friendly error from Gemini API errors
+const parseAIError = (err) => {
+    const msg = err.message || '';
+    if (msg.includes('quota') || msg.includes('429') || msg.includes('Too Many Requests')) {
+        return { status: 429, error: 'AI rate limit reached. Please wait a moment and try again.' };
+    }
+    if (msg.includes('API_KEY_INVALID') || msg.includes('401')) {
+        return { status: 503, error: 'AI API key is invalid. Please check the Gemini API key configuration.' };
+    }
+    if (msg.includes('not found') || msg.includes('404')) {
+        return { status: 503, error: 'AI model not available. Please check the server configuration.' };
+    }
+    if (msg === 'GEMINI_API_KEY is not configured') {
+        return { status: 503, error: 'AI service is not configured. Please set up the Gemini API key.' };
+    }
+    return { status: 500, error: `AI service error: ${msg.substring(0, 150)}` };
 };
 
 // POST /api/ai/chat — Chat with AI about a project
@@ -50,8 +67,13 @@ router.post('/chat', auth, async (req, res) => {
 
         const model = getModel();
 
-        // Use generateContent for simpler, more reliable requests
-        const prompt = `${context}\n\nConversation:\n${history.map(h => `${h.role}: ${h.content}`).join('\n')}\nuser: ${message}\n\nRespond as the AI assistant:`;
+        // Build prompt with conversation history
+        const historyText = history
+            .filter(h => h.role !== 'system')
+            .map(h => `${h.role === 'user' ? 'User' : 'Assistant'}: ${h.content}`)
+            .join('\n');
+
+        const prompt = `${context}\n\n${historyText ? 'Previous conversation:\n' + historyText + '\n\n' : ''}User: ${message}\n\nAssistant:`;
 
         const result = await model.generateContent(prompt);
         const response = result.response.text();
@@ -59,12 +81,8 @@ router.post('/chat', auth, async (req, res) => {
         res.json({ response });
     } catch (err) {
         console.error('AI Chat error:', err.message || err);
-        if (err.message === 'GEMINI_API_KEY is not configured') {
-            return res.status(503).json({ error: 'AI service is not configured. Please set up the Gemini API key.' });
-        }
-        // Include actual error detail for debugging
-        const detail = err.message || 'Unknown error';
-        res.status(500).json({ error: `AI error: ${detail}` });
+        const { status, error } = parseAIError(err);
+        res.status(status).json({ error });
     }
 });
 
@@ -90,11 +108,8 @@ router.post('/generate-tasks', auth, async (req, res) => {
         }
     } catch (err) {
         console.error('AI Generate Tasks error:', err.message || err);
-        if (err.message === 'GEMINI_API_KEY is not configured') {
-            return res.status(503).json({ error: 'AI service is not configured. Please set up the Gemini API key.' });
-        }
-        const detail = err.message || 'Unknown error';
-        res.status(500).json({ error: `AI error: ${detail}` });
+        const { status, error } = parseAIError(err);
+        res.status(status).json({ error });
     }
 });
 

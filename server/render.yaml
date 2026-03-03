@@ -26,3 +26,7 @@ services:
         sync: false
       - key: SLACK_CLIENT_SECRET
         sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.0-flash-lite
